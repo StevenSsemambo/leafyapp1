@@ -1,0 +1,17 @@
+{
+  "name": "Leafy",
+  "short_name": "Leafy",
+  "description": "Secure, beautiful messaging by Sematech Developers",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1410",
+  "theme_color": "#22c55e",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [
+    { "src": "/icons/screenshot.png", "sizes": "390x844", "type": "image/png" }
+  ]
+}
