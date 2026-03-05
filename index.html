@@ -1229,9 +1229,9 @@ body{font-size:calc(14px * var(--font-size-scale))}
       <span class="drawer-item-icon">🔔</span>
       <div class="drawer-item-text">
         <div class="drawer-item-title">Notifications</div>
-        <div class="drawer-item-sub">3 unread alerts</div>
+        <div class="drawer-item-sub" id="notif-drawer-sub">All caught up</div>
       </div>
-      <span class="drawer-item-arrow" style="display:flex;align-items:center;gap:4px"><span style="background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px">3</span> ›</span>
+      <span class="drawer-item-arrow" style="display:flex;align-items:center;gap:4px"><span id="notif-drawer-badge" style="background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;display:none">0</span> ›</span>
     </button>
     <button class="drawer-item" onclick="closeMoreDrawer();showStarredMessages()">
       <span class="drawer-item-icon">⭐</span>
@@ -1342,6 +1342,9 @@ let state = {
 // ── Realtime subscription handles ────────────────────────────────
 let msgSubscription  = null
 let convSubscription = null
+let typingChannel    = null
+let typingTimeout    = null
+let typingBroadcastTimeout = null
 
 // ══════════════════════════════════════════════════════════════════
 // INIT — session restore & boot
@@ -1397,6 +1400,10 @@ async function bootApp() {
   await loadMyProfile(currentUser.id)
   await loadSettings()
   setOnlineStatus(true).catch(()=>{})
+  // Request browser notification permission
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission().catch(() => {})
+  }
   await loadContacts()
   await loadConversations()
   await loadNotifications()
@@ -1558,6 +1565,7 @@ async function loadContacts() {
         bio:        p.bio || '',
         avatar_url: p.avatar_url || null,
         status:     p.is_online ? 'online' : 'offline',
+        last_seen:  p.last_seen_at || null,
       }
     })
   }
@@ -1673,6 +1681,21 @@ function formatMsgTime(isoStr) {
   if (diffDays === 1) return 'Yesterday'
   if (diffDays < 7)  return d.toLocaleDateString([], { weekday:'short' })
   return d.toLocaleDateString([], { month:'short', day:'numeric' })
+}
+
+function formatLastSeen(isoStr) {
+  if (!isoStr) return 'last seen a while ago'
+  const d   = new Date(isoStr)
+  const now = new Date()
+  const diffMin = Math.floor((now - d) / 60000)
+  if (diffMin < 1)  return 'last seen just now'
+  if (diffMin < 60) return `last seen ${diffMin}m ago`
+  const diffHr = Math.floor(diffMin / 60)
+  if (diffHr < 24)  return `last seen ${diffHr}h ago`
+  const diffDays = Math.floor(diffHr / 24)
+  if (diffDays === 1) return 'last seen yesterday'
+  if (diffDays < 7)  return `last seen ${diffDays} days ago`
+  return 'last seen ' + d.toLocaleDateString([], { month:'short', day:'numeric' })
 }
 
 function formatDateLabel(isoStr) {
@@ -2056,26 +2079,29 @@ async function createGroup() {
   const desc = document.getElementById('new-group-desc')?.value.trim()
   if (!name) { toast('Please enter a group name', 'error'); return }
 
-  const { data: conv, error } = await window._db.from('conversations').insert({
-    type: 'group', name, description: desc || '', created_by: myProfile.id
-  }).select().single()
-  if (error) { toast('Could not create group', 'error'); return }
-
-  // FIX: Use upsert to safely insert the creator as admin member
-  await window._db.from('conversation_members').upsert({
-    conversation_id: conv.id, user_id: myProfile.id, role: 'admin'
-  }, { onConflict: 'conversation_id,user_id', ignoreDuplicates: true })
+  // Use SECURITY DEFINER RPC to bypass RLS chicken-and-egg
+  const { data: convId, error } = await window._db.rpc('create_group', {
+    group_name: name,
+    group_desc: desc || ''
+  })
+  if (error) {
+    toast('Could not create group: ' + error.message, 'error')
+    console.error('createGroup error:', error)
+    return
+  }
 
   const newConv = {
-    id: conv.id, type: 'group', name,
+    id: convId, type: 'group', name,
     members: [myProfile.id], mood: 'default',
     preview: 'Group created 🎉', time: '', unread: 0, messages: []
   }
   CONVERSATIONS.unshift(newConv)
-  closeAllModals()
   renderConversations()
-  openConversation(conv.id)
-  toast(`Group "${name}" created! 🎉`, 'success')
+  openConversation(convId)
+  closeAllModals()
+  toast(`Group "${name}" created! 🎉 Add members via the 👥 button`, 'success')
+  // Immediately open add-member modal so creator can add people
+  setTimeout(() => showAddMemberModal(convId), 600)
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -2105,13 +2131,104 @@ function subscribeToConversations(convIds) {
       if (msg.sender_id === myProfile.id) return
 
       conv.messages.push(mapMessage({ ...msg, message_reactions: [], message_reads: [] }))
-      conv.preview = msg.text?.slice(0,60) || ''
+      const isFile = msg.type === 'image' || msg.type === 'file'
+      conv.preview = isFile ? '📎 ' + (msg.file_name || 'File') : (msg.text?.slice(0,60) || '')
       conv.time    = formatMsgTime(msg.created_at)
-      if (state.activeConvId !== conv.id) conv.unread++
+
+      const isMuted = convMeta[conv.id]?.muted
+      const isActive = state.activeConvId === conv.id
+
+      if (!isActive) conv.unread++
 
       renderConversations()
-      if (state.activeConvId === conv.id) renderMessages(conv.id)
-      if (state.notif_sounds) playNotifSound()
+      if (isActive) renderMessages(conv.id)
+      updateNotifBadge()
+
+      // ── Notification firing ──────────────────────────────────
+      if (!isMuted) {
+        const sender = USERS[msg.sender_id] || { name: 'Someone' }
+        const convName = conv.name
+        const body = state.notif_preview
+          ? (isFile ? '📎 Sent a file' : (msg.text?.slice(0,80) || ''))
+          : 'New message'
+        const title = state.notif_preview ? sender.name : convName
+
+        // Add to in-app NOTIFICATIONS array
+        const notif = {
+          id: msg.id,
+          type: 'message',
+          body: `${sender.name}: ${body}`,
+          conversation_id: conv.id,
+          read: false,
+          created_at: msg.created_at,
+        }
+        NOTIFICATIONS.unshift(notif)
+        if (NOTIFICATIONS.length > 50) NOTIFICATIONS.pop()
+
+        // Sound
+        if (state.notif_sounds) playNotifSound()
+
+        // Vibration
+        if (state.notif_vibrate && navigator.vibrate) navigator.vibrate([120, 60, 80])
+
+        // Browser push notification (only when tab not focused)
+        if (!document.hasFocus() && Notification.permission === 'granted') {
+          try {
+            const n = new Notification(title, {
+              body,
+              icon: '/favicon.ico',
+              badge: '/favicon.ico',
+              tag: conv.id,     // replaces previous notif for same conv
+              renotify: true,
+            })
+            n.onclick = () => {
+              window.focus()
+              openConversation(conv.id)
+              n.close()
+            }
+            if (!state.notif_groups && conv.type === 'group') {
+              n.close() // suppress group notifs if setting is off
+            }
+          } catch(e) {}
+        }
+
+        // Write notification row to DB (so other devices/sessions see it)
+        window._db.from('notifications').insert({
+          user_id: myProfile.id,
+          type: 'message',
+          body: `${sender.name}: ${body}`,
+          conversation_id: conv.id,
+          message_id: msg.id,
+          actor_id: msg.sender_id,
+        }).then(() => {}).catch(() => {})
+      }
+    })
+    .subscribe()
+
+  // ── Typing indicators via Broadcast ─────────────────────────
+  typingChannel = window._db
+    .channel('typing-' + convIds.join('-').slice(0, 50))
+    .on('broadcast', { event: 'typing' }, ({ payload }) => {
+      if (payload.userId === myProfile.id) return
+      if (payload.convId !== state.activeConvId) return
+      const row = document.getElementById('typing-row')
+      const conv = CONVERSATIONS.find(c => c.id === payload.convId)
+      const sender = USERS[payload.userId] || { name: 'Someone' }
+      if (!row || !conv) return
+      if (payload.isTyping) {
+        row.querySelector('span').textContent = `${sender.name} is typing…`
+        row.style.opacity = '1'
+        row.style.pointerEvents = 'auto'
+        // Auto-hide after 3 seconds of no updates
+        clearTimeout(typingTimeout)
+        typingTimeout = setTimeout(() => {
+          row.style.opacity = '0'
+          row.style.pointerEvents = 'none'
+        }, 3000)
+      } else {
+        row.style.opacity = '0'
+        row.style.pointerEvents = 'none'
+      }
     })
     .subscribe()
 
@@ -2124,7 +2241,34 @@ function subscribeToConversations(convIds) {
       table:  'profiles',
     }, payload => {
       const p = payload.new
-      if (USERS[p.id]) USERS[p.id].status = p.is_online ? 'online' : 'offline'
+      if (USERS[p.id]) {
+        USERS[p.id].status = p.is_online ? 'online' : 'offline'
+        USERS[p.id].last_seen = p.last_seen_at
+        // Refresh chat header sub-line if this user is active DM partner
+        const activeConv = CONVERSATIONS.find(c => c.id === state.activeConvId)
+        if (activeConv?.type === 'dm' && activeConv.otherId === p.id) {
+          const subEl = document.querySelector('.chat-header .sub')
+          if (subEl) subEl.textContent = p.is_online ? 'online' : formatLastSeen(p.last_seen_at)
+        }
+      }
+    })
+    .subscribe()
+
+  // Notifications realtime — new notifs from DB trigger or other device
+  window._db
+    .channel('notifications-realtime')
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'notifications',
+      filter: `user_id=eq.${myProfile.id}`,
+    }, payload => {
+      const n = payload.new
+      // Avoid duplication — already added locally in message handler
+      if (!NOTIFICATIONS.find(x => x.id === n.id)) {
+        NOTIFICATIONS.unshift(n)
+        updateNotifBadge()
+      }
     })
     .subscribe()
 }
@@ -2452,6 +2596,7 @@ async function openConversation(id) {
   conv.unread = 0
   markAsRead(id)
   renderConversations()
+  updateNotifBadge()
 
   const chatArea = document.getElementById('chat-area')
   const user     = conv.type==='dm' ? USERS[conv.otherId] : null
@@ -2461,8 +2606,11 @@ async function openConversation(id) {
         const u = uid===myProfile.id ? ME : USERS[uid]
         return u ? `<span style="width:14px;height:14px;border-radius:50%;background:var(--accent-dim);display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;border:1.5px solid var(--bg-deep);margin-left:-3px">${(u.initials||'?')[0]}</span>` : ''
       }).join('') : ''
+  const dmStatusText = user
+    ? (user.status === 'online' ? 'online' : formatLastSeen(user.last_seen))
+    : 'offline'
   const sub = conv.type==='dm'
-    ? (user?.status||'offline')
+    ? dmStatusText
     : `<span class="members-chip" onclick="showMembersPanel('${id}')">${memberAvatars} <span>${conv.members?.length||0} members</span></span>`
 
   chatArea.setAttribute('data-mood', conv.mood||'default')
@@ -2699,11 +2847,31 @@ function closeStory() { document.getElementById('story-viewer').style.display='n
 // NOTIFICATION BADGE
 // ══════════════════════════════════════════════════════════════════
 function updateNotifBadge() {
-  const unread = NOTIFICATIONS.filter(n=>!n.read).length
-  const badge  = document.getElementById('notif-badge')
-  if (!badge) return
-  badge.textContent = unread
-  badge.style.display = unread > 0 ? 'flex' : 'none'
+  // Count total unread messages across all non-muted conversations
+  const totalUnread = CONVERSATIONS.reduce((sum, c) => {
+    if (convMeta[c.id]?.muted) return sum
+    return sum + (c.unread || 0)
+  }, 0)
+
+  // Bell badge
+  const badge = document.getElementById('notif-badge')
+  if (badge) {
+    badge.textContent = totalUnread > 99 ? '99+' : totalUnread
+    badge.style.display = totalUnread > 0 ? 'flex' : 'none'
+  }
+
+  // Document title tab badge
+  const base = 'Leafy'
+  document.title = totalUnread > 0 ? `(${totalUnread}) ${base}` : base
+
+  // Drawer notification subtitle
+  const drawerSub = document.getElementById('notif-drawer-sub')
+  const drawerBadge = document.getElementById('notif-drawer-badge')
+  if (drawerSub) drawerSub.textContent = totalUnread > 0 ? `${totalUnread} unread message${totalUnread>1?'s':''}` : 'All caught up'
+  if (drawerBadge) {
+    drawerBadge.textContent = totalUnread > 99 ? '99+' : totalUnread
+    drawerBadge.style.display = totalUnread > 0 ? 'inline-flex' : 'none'
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -2716,7 +2884,17 @@ function toggleAnon(id) {
   toast(anonMode[id]?'Anonymous mode ON':'Anonymous mode OFF','info')
 }
 function handleKey(e,id){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg(id)}if(e.key==='Escape')cancelReply(id)}
-function handleInput(e,id){const ta=e.target;ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,120)+'px'}
+function handleInput(e,id){
+  const ta=e.target;ta.style.height='auto';ta.style.height=Math.min(ta.scrollHeight,120)+'px'
+  // Broadcast typing event
+  if (typingChannel) {
+    typingChannel.send({ type:'broadcast', event:'typing', payload:{ convId:id, userId:myProfile.id, isTyping:true } })
+    clearTimeout(typingBroadcastTimeout)
+    typingBroadcastTimeout = setTimeout(() => {
+      if (typingChannel) typingChannel.send({ type:'broadcast', event:'typing', payload:{ convId:id, userId:myProfile.id, isTyping:false } })
+    }, 2500)
+  }
+}
 function setReplyTo(id,msgId,senderName,text){
   replyTo[id]={msgId,senderName,text}
   const strip=document.getElementById('reply-strip-'+id),txt=document.getElementById('reply-strip-text-'+id)
@@ -3016,9 +3194,22 @@ function showSettingsModal(){
       </div>
     </div>
     <div class="settings-section"><h4>Notifications</h4>
-      ${[['notif_sounds','Sounds'],['notif_vibrate','Vibration'],['notif_preview','Message Preview'],['notif_groups','Group Notifications']].map(([key,label])=>`
+      ${'Notification' in window && Notification.permission !== 'granted' ? `
+      <div style="padding:10px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.3);border-radius:var(--radius-md);margin-bottom:12px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">🔔</span>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600">Enable push notifications</div>
+          <div style="font-size:11.5px;color:var(--text-muted)">Get notified even when the app is in the background</div>
+        </div>
+        <button class="btn btn-primary" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="Notification.requestPermission().then(p=>p==='granted'?toast('🔔 Notifications enabled!','success'):toast('Notifications blocked — allow them in your browser settings','error'))">Enable</button>
+      </div>` : `
+      <div style="padding:8px 10px;background:var(--accent-glow);border:1px solid var(--border-accent);border-radius:var(--radius-md);margin-bottom:12px;font-size:12.5px;color:var(--accent);font-weight:600">✅ Push notifications are enabled</div>`}
+      ${[['notif_sounds','🔊 Sounds','Plays a chime on new messages'],['notif_vibrate','📳 Vibration','Vibrate on new messages (mobile)'],['notif_preview','👁 Message Preview','Show message content in notifications'],['notif_groups','👥 Group Notifications','Notify for all group messages']].map(([key,label,desc])=>`
         <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-subtle)">
-          <span style="font-size:13.5px">${label}</span>
+          <div>
+            <div style="font-size:13.5px;font-weight:500">${label}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:1px">${desc}</div>
+          </div>
           <label class="toggle-switch"><input type="checkbox" ${state[key]?'checked':''} onchange="state['${key}']=this.checked;persistSettings()"><span class="toggle-track"></span></label>
         </div>`).join('')}
     </div>
@@ -3057,24 +3248,63 @@ function setConvMood(convId,mood){
 // NOTIFICATIONS MODAL
 // ══════════════════════════════════════════════════════════════════
 function showNotifsModal(){
-  closeAllModals(); markNotifsRead()
+  closeAllModals()
   const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.onclick=e=>{if(e.target===overlay)closeAllModals()}
   const icons={message:'💬',reaction:'❤️',mention:'@',group:'👥',system:'🔔'}
+
+  // Show unread conversations first (always real data)
+  const unreadConvs = CONVERSATIONS.filter(c => c.unread > 0 && !convMeta[c.id]?.muted)
+    .sort((a,b) => b.unread - a.unread)
+
+  const unreadSection = unreadConvs.length > 0 ? `
+    <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Unread Conversations</div>
+    ${unreadConvs.map(c => {
+      const u = c.type==='dm' ? USERS[c.otherId] : null
+      const avatarBg = c.type==='group' ? 'background:linear-gradient(135deg,var(--accent-dim),var(--accent));color:#fff' : ''
+      const initials = u ? u.initials : (c.name[0]||'G')
+      return `<div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:var(--radius-md);margin-bottom:4px;background:var(--accent-glow);border:1px solid var(--border-accent);cursor:pointer" onclick="openConversation('${c.id}');closeAllModals()">
+        <div class="av" style="width:38px;height:38px;font-size:14px;flex-shrink:0;${avatarBg};overflow:hidden">
+          ${u?.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`:(u?.initials||initials)}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:13.5px">${c.name}</div>
+          <div style="font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.preview||''}</div>
+        </div>
+        <div style="background:#ef4444;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;flex-shrink:0">${c.unread}</div>
+      </div>`
+    }).join('')}
+    <div style="height:1px;background:var(--border-subtle);margin:12px 0"></div>` : ''
+
+  const recentNotifs = NOTIFICATIONS.slice(0, 20)
+
   overlay.innerHTML=`<div class="modal pop-in" onclick="event.stopPropagation()">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <h3 style="margin:0">🔔 Notifications</h3><button onclick="closeAllModals()" class="icon-btn">✕</button>
+      <h3 style="margin:0">🔔 Notifications</h3>
+      <div style="display:flex;gap:6px">
+        ${NOTIFICATIONS.filter(n=>!n.read).length>0?`<button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="markNotifsRead();closeAllModals();showNotifsModal()">Mark all read</button>`:''}
+        <button onclick="closeAllModals()" class="icon-btn">✕</button>
+      </div>
     </div>
-    ${NOTIFICATIONS.length===0
-      ?`<div style="text-align:center;color:var(--text-muted);padding:30px 0;font-size:13px">No notifications yet.</div>`
-      :NOTIFICATIONS.map(n=>`<div style="display:flex;gap:12px;padding:10px;border-radius:var(--radius-md);margin-bottom:6px;background:${n.read?'transparent':'var(--accent-glow)'};border:1px solid ${n.read?'var(--border-subtle)':'var(--border-accent)'};cursor:pointer" ${n.conversation_id?`onclick="openConversation('${n.conversation_id}');closeAllModals()"`:''}">
-        <span style="font-size:20px;flex-shrink:0">${icons[n.type]||'🔔'}</span>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:13.5px;font-weight:${n.read?'400':'600'}">${n.body}</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${formatMsgTime(n.created_at)}</div>
-        </div>
-      </div>`).join('')}
+    <div style="max-height:70vh;overflow-y:auto">
+      ${unreadSection}
+      ${recentNotifs.length===0&&unreadConvs.length===0
+        ?`<div style="text-align:center;color:var(--text-muted);padding:30px 0;font-size:13px">🎉 You're all caught up!</div>`
+        :recentNotifs.length>0?`
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Recent Activity</div>
+          ${recentNotifs.map(n=>`
+            <div style="display:flex;gap:12px;padding:10px;border-radius:var(--radius-md);margin-bottom:4px;background:${n.read?'transparent':'var(--bg-raised)'};border:1px solid ${n.read?'transparent':'var(--border-default)'};cursor:pointer" ${n.conversation_id?`onclick="openConversation('${n.conversation_id}');closeAllModals()"`:''}>
+              <span style="font-size:20px;flex-shrink:0">${icons[n.type]||'🔔'}</span>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:${n.read?'400':'600'};line-height:1.4">${n.body}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${formatMsgTime(n.created_at)}</div>
+              </div>
+              ${!n.read?`<div style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px"></div>`:''}
+            </div>`).join('')}` : ''}
+    </div>
   </div>`
   document.body.appendChild(overlay)
+  // Mark as read after showing
+  setTimeout(() => markNotifsRead(), 500)
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -3390,8 +3620,22 @@ function runGlobalSearch(q){
 // ══════════════════════════════════════════════════════════════════
 // NOTIFICATION SOUND
 // ══════════════════════════════════════════════════════════════════
-function playNotifSound(){
-  try{const ctx=new(window.AudioContext||window.webkitAudioContext)(),osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.type='sine';osc.frequency.value=880;gain.gain.setValueAtTime(0,ctx.currentTime);gain.gain.linearRampToValueAtTime(0.15,ctx.currentTime+0.02);gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.35);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.35)}catch(e){}
+function playNotifSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const now = ctx.currentTime
+    // Two-note chime: C5 then G5
+    ;[523.25, 783.99].forEach((freq, i) => {
+      const osc = ctx.createOscillator(), gain = ctx.createGain()
+      osc.connect(gain); gain.connect(ctx.destination)
+      osc.type = 'sine'; osc.frequency.value = freq
+      const t = now + i * 0.12
+      gain.gain.setValueAtTime(0, t)
+      gain.gain.linearRampToValueAtTime(0.18, t + 0.015)
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45)
+      osc.start(t); osc.stop(t + 0.5)
+    })
+  } catch(e) {}
 }
 
 // ══════════════════════════════════════════════════════════════════
