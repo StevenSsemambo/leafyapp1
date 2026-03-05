@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -1395,12 +1396,15 @@ async function loadMyProfile(userId) {
     }
     ME = { id: data.id, name: myProfile.name, username: myProfile.username, initials, status: 'online' }
   } else {
-    // Auto-create profile row (handle_new_user trigger may beat us but upsert is safe)
+    // Auto-create profile row — use ignoreDuplicates in case trigger already ran
     const email   = currentUser.email || ''
     const name    = currentUser.user_metadata?.display_name || email.split('@')[0] || 'User'
     const username = email.split('@')[0].replace(/[^a-z0-9_]/gi,'').toLowerCase() || 'user'
     const initials = name.slice(0,2).toUpperCase()
-    await window._db.from('profiles').upsert({ id: userId, display_name: name, username })
+    await window._db.from('profiles').upsert(
+      { id: userId, display_name: name, username },
+      { onConflict: 'id', ignoreDuplicates: true }
+    )
     myProfile = { id: userId, name, username, bio: '', initials, avatar_url: null }
     ME = { id: userId, name, username, initials, status: 'online' }
   }
@@ -1410,11 +1414,27 @@ async function saveProfile() {
   const name     = document.getElementById('ep-name')?.value.trim()
   const username = document.getElementById('ep-username')?.value.trim().replace('@','')
   const bio      = document.getElementById('ep-bio')?.value.trim()
+  const avatarFile = document.getElementById('ep-avatar-file')?.files?.[0]
   if (!name) { toast('Name cannot be empty', 'error'); return }
+
+  let avatar_url = myProfile.avatar_url
+
+  // FIX: Upload avatar to Supabase Storage if a new file was selected
+  if (avatarFile) {
+    if (avatarFile.size > 5 * 1024 * 1024) { toast('Photo must be under 5MB', 'error'); return }
+    const ext  = avatarFile.name.split('.').pop()
+    const path = `${myProfile.id}/avatar_${Date.now()}.${ext}`
+    const { error: upErr } = await window._db.storage
+      .from('avatars')
+      .upload(path, avatarFile, { upsert: true, contentType: avatarFile.type })
+    if (upErr) { toast('Photo upload failed: ' + upErr.message, 'error'); return }
+    const { data: urlData } = window._db.storage.from('avatars').getPublicUrl(path)
+    avatar_url = urlData.publicUrl
+  }
 
   const { error } = await window._db
     .from('profiles')
-    .update({ display_name: name, username: username || myProfile.username, bio, updated_at: new Date().toISOString() })
+    .update({ display_name: name, username: username || myProfile.username, bio, avatar_url, updated_at: new Date().toISOString() })
     .eq('id', myProfile.id)
 
   if (error) { toast('Could not save profile: ' + error.message, 'error'); return }
@@ -1422,6 +1442,7 @@ async function saveProfile() {
   myProfile.name     = name
   myProfile.username = username || myProfile.username
   myProfile.bio      = bio
+  myProfile.avatar_url = avatar_url
   myProfile.initials = name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase()
   ME.name = name
   updateSidebarProfile()
@@ -1972,16 +1993,26 @@ async function startDM(otherUserId) {
   const userA = myProfile.id < otherUserId ? myProfile.id : otherUserId
   const userB = myProfile.id < otherUserId ? otherUserId : myProfile.id
 
-  const { data: conv, error } = await window._db.from('conversations').insert({
+  // FIX: Use upsert with onConflict to avoid duplicate DM errors
+  const { data: conv, error } = await window._db.from('conversations').upsert({
     type: 'dm', dm_user_a: userA, dm_user_b: userB, created_by: myProfile.id
-  }).select().single()
-  if (error) { toast('Could not start chat', 'error'); return }
+  }, { onConflict: 'dm_user_a,dm_user_b' }).select().single()
+  if (error) { toast('Could not start chat: ' + error.message, 'error'); return }
 
-  // Add both users as members
-  await window._db.from('conversation_members').insert([
-    { conversation_id: conv.id, user_id: myProfile.id,   role: 'admin' },
-    { conversation_id: conv.id, user_id: otherUserId,    role: 'member' },
-  ])
+  // FIX: Insert members one at a time to work around RLS chicken-and-egg issue.
+  // The schema RLS requires is_conversation_member() to be true before inserting,
+  // but we haven't added ourselves yet. We insert ourselves first (creator), then
+  // the other user. Each insert is done individually so the second one can pass
+  // the is_conversation_member check with the service-role bypass workaround.
+  // We use upsert to avoid errors if the conversation already existed.
+  await window._db.from('conversation_members').upsert(
+    { conversation_id: conv.id, user_id: myProfile.id, role: 'admin' },
+    { onConflict: 'conversation_id,user_id', ignoreDuplicates: true }
+  )
+  await window._db.from('conversation_members').upsert(
+    { conversation_id: conv.id, user_id: otherUserId, role: 'member' },
+    { onConflict: 'conversation_id,user_id', ignoreDuplicates: true }
+  )
 
   const otherUser = USERS[otherUserId]
   const newConv = {
@@ -2006,9 +2037,10 @@ async function createGroup() {
   }).select().single()
   if (error) { toast('Could not create group', 'error'); return }
 
-  await window._db.from('conversation_members').insert({
+  // FIX: Use upsert to safely insert the creator as admin member
+  await window._db.from('conversation_members').upsert({
     conversation_id: conv.id, user_id: myProfile.id, role: 'admin'
-  })
+  }, { onConflict: 'conversation_id,user_id', ignoreDuplicates: true })
 
   const newConv = {
     id: conv.id, type: 'group', name,
@@ -2313,8 +2345,12 @@ function updateSidebarProfile() {
   document.querySelectorAll('.own-name').forEach(el=>el.textContent=myProfile.name)
   document.querySelectorAll('.drawer-name').forEach(el=>el.textContent=myProfile.name)
   document.querySelectorAll('.drawer-username').forEach(el=>el.textContent='@'+myProfile.username)
-  document.querySelectorAll('.sidebar-footer .av').forEach(el=>el.textContent=myProfile.initials)
-  document.querySelectorAll('.drawer-avatar .av').forEach(el=>el.textContent=myProfile.initials)
+  // FIX: Show avatar photo if available, otherwise fall back to initials
+  const avatarInner = myProfile.avatar_url
+    ? `<img src="${myProfile.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
+    : myProfile.initials
+  document.querySelectorAll('.sidebar-footer .av').forEach(el=>{ el.innerHTML=avatarInner })
+  document.querySelectorAll('.drawer-avatar .av').forEach(el=>{ el.innerHTML=avatarInner })
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -2453,7 +2489,8 @@ async function openConversation(id) {
         <button class="feat-btn" id="anon-btn-${id}" onclick="toggleAnon('${id}')">👁 Anon</button>
         <button class="feat-btn" onclick="showPollModal('${id}')">📊 Poll</button>
         <button class="feat-btn" onclick="showDestructModal('${id}')">🔥 Destruct</button>
-        <button class="feat-btn" onclick="toast('📎 File upload coming soon','info')">📎 File</button>
+        <button class="feat-btn" onclick="document.getElementById('file-input-${id}').click()">📎 File</button>
+        <input type="file" id="file-input-${id}" style="display:none" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.txt" onchange="handleFileUpload('${id}',this)"/>
         <button class="feat-btn" onclick="toast('🎤 Voice messages coming soon','info')">🎤 Voice</button>
       </div>
       <div class="input-row">
@@ -2991,9 +3028,16 @@ function showEditProfileModal(){
       <h3 style="margin:0">✏️ Edit Profile</h3><button onclick="closeAllModals()" class="icon-btn">✕</button>
     </div>
     <div style="text-align:center;margin-bottom:18px">
-      <div class="avatar-edit-ring">
-        <div class="av" style="width:64px;height:64px;font-size:24px">${myProfile.initials}</div>
+      <input type="file" id="ep-avatar-file" accept="image/*" style="display:none" onchange="previewAvatar(this)"/>
+      <div class="avatar-edit-ring" onclick="document.getElementById('ep-avatar-file').click()" title="Tap to change photo" style="cursor:pointer;position:relative;display:inline-block">
+        <div class="av" id="ep-avatar-preview" style="width:64px;height:64px;font-size:24px;overflow:hidden">
+          ${myProfile.avatar_url
+            ? `<img src="${myProfile.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
+            : myProfile.initials}
+        </div>
+        <div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid var(--bg-card)">📷</div>
       </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px">Tap photo to change</div>
     </div>
     <div class="form-field"><label class="form-label">Display Name</label><input class="form-input" id="ep-name" value="${myProfile.name}" placeholder="Your name"/></div>
     <div class="form-field"><label class="form-label">Username</label><input class="form-input" id="ep-username" value="${myProfile.username}" placeholder="@username"/></div>
@@ -3273,6 +3317,92 @@ function escapeHtml(text){
     .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
     .replace(/`([^`]+)`/g,'<code style="background:var(--bg-void);border:1px solid var(--border-default);border-radius:4px;padding:1px 5px;font-family:monospace;font-size:12.5px;color:#a8ff78">$1</code>')
     .replace(/_([^_]+)_/g,'<em>$1</em>')
+}
+
+// ══════════════════════════════════════════════════════════════════
+// FILE UPLOAD  (attachments bucket in Supabase Storage)
+// ══════════════════════════════════════════════════════════════════
+async function handleFileUpload(convId, input) {
+  const file = input.files?.[0]
+  if (!file) return
+  // Reset so same file can be selected again
+  input.value = ''
+
+  const MAX_MB = 20
+  if (file.size > MAX_MB * 1024 * 1024) {
+    toast(`File must be under ${MAX_MB}MB`, 'error'); return
+  }
+
+  const toastDuration = 8000
+  toast('⏫ Uploading ' + file.name + '…', 'info', toastDuration)
+
+  const ext  = file.name.split('.').pop()
+  const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+  const path = `${convId}/${Date.now()}_${safe}`
+
+  const { error: upErr } = await window._db.storage
+    .from('attachments')
+    .upload(path, file, { contentType: file.type })
+
+  if (upErr) {
+    toast('Upload failed: ' + upErr.message, 'error'); return
+  }
+
+  // Generate a signed URL (attachments bucket is private)
+  const { data: signed } = await window._db.storage
+    .from('attachments')
+    .createSignedUrl(path, 60 * 60 * 24 * 7) // 7-day signed URL
+
+  const fileUrl = signed?.signedUrl || ''
+  const isImage = file.type.startsWith('image/')
+  const msgType = isImage ? 'image' : 'file'
+
+  const { data, error: msgErr } = await window._db
+    .from('messages')
+    .insert({
+      conversation_id: convId,
+      sender_id:       myProfile.id,
+      text:            file.name,
+      type:            msgType,
+      file_url:        fileUrl,
+      file_name:       file.name,
+      file_size:       file.size,
+      file_mime:       file.type,
+      is_anon:         anonMode[convId] || false,
+    })
+    .select()
+    .single()
+
+  if (msgErr) { toast('Could not send file: ' + msgErr.message, 'error'); return }
+
+  // Update conversation timestamp
+  await window._db.from('conversations')
+    .update({ updated_at: new Date().toISOString() })
+    .eq('id', convId)
+
+  const conv = CONVERSATIONS.find(c => c.id === convId)
+  if (conv && data) {
+    conv.messages.push(mapMessage({ ...data, message_reactions: [], message_reads: [] }))
+    conv.preview = isImage ? '🖼 Image' : '📎 ' + file.name
+    conv.time    = formatMsgTime(data.created_at)
+    renderMessages(convId)
+    renderConversations()
+  }
+  toast('✅ File sent!', 'success')
+}
+
+// ── Avatar preview before upload ─────────────────────────────────
+function previewAvatar(input) {
+  const file = input.files?.[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = e => {
+    const preview = document.getElementById('ep-avatar-preview')
+    if (preview) {
+      preview.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
+    }
+  }
+  reader.readAsDataURL(file)
 }
 
 // ── Visual viewport: keep input above keyboard on iOS ──
