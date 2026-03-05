@@ -1984,46 +1984,34 @@ async function postStatus() {
 // NEW CONVERSATION  (conversations + conversation_members)
 // ══════════════════════════════════════════════════════════════════
 async function startDM(otherUserId) {
-  // Check if DM already exists
+  // Check if DM already exists locally first
   const existing = CONVERSATIONS.find(c =>
     c.type === 'dm' && c.otherId === otherUserId
   )
   if (existing) { openConversation(existing.id); closeAllModals(); return }
 
-  const userA = myProfile.id < otherUserId ? myProfile.id : otherUserId
-  const userB = myProfile.id < otherUserId ? otherUserId : myProfile.id
+  // Call server-side RPC which runs as SECURITY DEFINER (bypasses RLS)
+  // This creates the conversation + both member rows atomically
+  const { data: convId, error } = await window._db.rpc('create_dm', {
+    other_user_id: otherUserId
+  })
 
-  // FIX: Use upsert with onConflict to avoid duplicate DM errors
-  const { data: conv, error } = await window._db.from('conversations').upsert({
-    type: 'dm', dm_user_a: userA, dm_user_b: userB, created_by: myProfile.id
-  }, { onConflict: 'dm_user_a,dm_user_b' }).select().single()
-  if (error) { toast('Could not start chat: ' + error.message, 'error'); return }
-
-  // FIX: Insert members one at a time to work around RLS chicken-and-egg issue.
-  // The schema RLS requires is_conversation_member() to be true before inserting,
-  // but we haven't added ourselves yet. We insert ourselves first (creator), then
-  // the other user. Each insert is done individually so the second one can pass
-  // the is_conversation_member check with the service-role bypass workaround.
-  // We use upsert to avoid errors if the conversation already existed.
-  await window._db.from('conversation_members').upsert(
-    { conversation_id: conv.id, user_id: myProfile.id, role: 'admin' },
-    { onConflict: 'conversation_id,user_id', ignoreDuplicates: true }
-  )
-  await window._db.from('conversation_members').upsert(
-    { conversation_id: conv.id, user_id: otherUserId, role: 'member' },
-    { onConflict: 'conversation_id,user_id', ignoreDuplicates: true }
-  )
+  if (error) {
+    toast('Could not start chat: ' + error.message, 'error')
+    console.error('startDM error:', error)
+    return
+  }
 
   const otherUser = USERS[otherUserId]
   const newConv = {
-    id: conv.id, type: 'dm', otherId: otherUserId,
+    id: convId, type: 'dm', otherId: otherUserId,
     name: otherUser?.name || 'Unknown',
     members: [myProfile.id, otherUserId],
     mood: 'default', preview: 'No messages yet', time: '', unread: 0, messages: []
   }
   CONVERSATIONS.unshift(newConv)
   renderConversations()
-  openConversation(conv.id)
+  openConversation(convId)
   closeAllModals()
 }
 
