@@ -231,6 +231,60 @@ body{font-size:calc(14px * var(--font-size-scale))}
 /* UNREAD NOTIF BADGE on bell icon (driven by data) */
 .notif-count-badge{position:absolute;top:4px;right:4px;min-width:16px;height:16px;border-radius:99px;background:#ef4444;border:1.5px solid var(--bg-deep);font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;pointer-events:none}
 
+
+/* ── FILE / IMAGE BUBBLES ───────────────────────────────────── */
+.file-bubble{display:flex;align-items:center;gap:10px;min-width:180px;padding:4px 2px}
+.img-bubble img{max-width:220px;max-height:200px;border-radius:10px;display:block;cursor:zoom-in;object-fit:cover}
+.img-bubble{cursor:zoom-in}
+
+/* ── IMAGE VIEWER OVERLAY ───────────────────────────────────── */
+#img-viewer{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;cursor:zoom-out}
+#img-viewer img{max-width:94vw;max-height:85vh;border-radius:12px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+#img-viewer-caption{color:rgba(255,255,255,.6);font-size:13px}
+#img-viewer-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+
+/* ── EMOJI PICKER ───────────────────────────────────────────── */
+.emoji-picker-pop{position:absolute;bottom:calc(100% + 8px);left:0;background:var(--bg-card);border:1px solid var(--border-default);border-radius:var(--radius-xl);padding:10px;box-shadow:var(--shadow-lg);z-index:200;width:300px;animation:popIn .18s ease both}
+.emoji-category{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:4px}
+.emoji-cat-label{font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin:6px 0 3px;display:block}
+.ep-btn{background:none;border:none;font-size:20px;cursor:pointer;padding:4px;border-radius:6px;transition:transform .15s,background .15s;line-height:1}
+.ep-btn:hover{transform:scale(1.25);background:var(--bg-hover)}
+
+/* ── VOICE RECORDER ─────────────────────────────────────────── */
+.voice-recorder-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-raised);border-radius:var(--radius-xl);margin-bottom:7px;animation:popIn .2s ease both;border:1px solid var(--border-accent)}
+.voice-pulse{width:10px;height:10px;border-radius:50%;background:#ef4444;animation:voicePulse 1s ease-in-out infinite;flex-shrink:0}
+@keyframes voicePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.5}}
+.voice-timer{font-family:var(--font-mono);font-size:14px;font-weight:600;color:var(--text-primary);flex:1}
+.voice-waveform{display:flex;align-items:center;gap:2px;flex:1}
+.voice-bar{width:3px;border-radius:99px;background:var(--accent);animation:waveBar .6s ease-in-out infinite alternate}
+.voice-bar:nth-child(2){animation-delay:.1s}.voice-bar:nth-child(3){animation-delay:.2s}.voice-bar:nth-child(4){animation-delay:.3s}.voice-bar:nth-child(5){animation-delay:.4s}.voice-bar:nth-child(6){animation-delay:.15s}.voice-bar:nth-child(7){animation-delay:.25s}
+@keyframes waveBar{from{height:4px}to{height:18px}}
+
+/* ── LINK PREVIEW ───────────────────────────────────────────── */
+.link-preview{background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--radius-md);overflow:hidden;margin-top:6px;cursor:pointer;transition:border-color .18s}
+.link-preview:hover{border-color:var(--border-accent)}
+.link-preview-body{padding:8px 10px}
+.link-preview-domain{font-size:10.5px;color:var(--text-muted);margin-bottom:2px}
+.link-preview-title{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:2px;line-height:1.3}
+.link-preview-desc{font-size:11.5px;color:var(--text-muted);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ── ONLINE PRESENCE ────────────────────────────────────────── */
+.status-dot.online{animation:onlinePulse 2.5s ease-in-out infinite}
+@keyframes onlinePulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}50%{box-shadow:0 0 0 3px rgba(34,197,94,0.25)}}
+
+/* ── GROUP INVITE BUTTON ────────────────────────────────────── */
+.add-member-btn{width:100%;margin-top:10px;padding:10px;border:2px dashed var(--border-default);border-radius:var(--radius-lg);background:transparent;color:var(--text-muted);cursor:pointer;font-family:var(--font-body);font-size:13px;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px}
+.add-member-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
+
+/* ── FORWARD MESSAGE ────────────────────────────────────────── */
+.forward-conv-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--radius-md);cursor:pointer;transition:background .15s}
+.forward-conv-item:hover{background:var(--bg-hover)}
+.forward-conv-item input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;cursor:pointer;flex-shrink:0}
+
+/* ── MESSAGE SEARCH HIGHLIGHT ───────────────────────────────── */
+.msg-highlight{background:rgba(234,179,8,.35);border-radius:3px}
+.msg-highlight.current{background:rgba(234,179,8,.7);outline:2px solid #eab308}
+
 /* ── SPLASH ─────────────────────────────────────────────── */
 #splash{
   position:fixed;inset:0;
@@ -1030,6 +1084,12 @@ body{font-size:calc(14px * var(--font-size-scale))}
 <div class="toast-container" id="toast-container"></div>
 
 <!-- STORY VIEWER -->
+<div id="img-viewer" onclick="closeImageViewer()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9000;align-items:center;justify-content:center;flex-direction:column;gap:12px;cursor:zoom-out">
+  <button id="img-viewer-close" onclick="event.stopPropagation();closeImageViewer()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center">✕</button>
+  <img id="img-viewer-img" src="" alt="" style="max-width:94vw;max-height:85vh;border-radius:12px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.6)"/>
+  <div id="img-viewer-caption" style="color:rgba(255,255,255,.6);font-size:13px"></div>
+</div>
+
 <div class="story-viewer" id="story-viewer" style="display:none"></div>
 
 <!-- APP -->
@@ -1336,6 +1396,7 @@ window.addEventListener('resize', () => {
 async function bootApp() {
   await loadMyProfile(currentUser.id)
   await loadSettings()
+  setOnlineStatus(true).catch(()=>{})
   await loadContacts()
   await loadConversations()
   await loadNotifications()
@@ -1674,6 +1735,8 @@ function mapMessage(m) {
     readBy,
     isDestruct: m.is_destruct || false,
     isFile:    m.type === 'file' || m.type === 'image',
+    fileUrl:   m.file_url || '',
+    fileMime:  m.file_mime || '',
     fileType:  m.file_mime?.startsWith('image') ? '🖼️' : '📄',
     fileName:  m.file_name || '',
     fileSize:  m.file_size ? (m.file_size > 1048576 ? (m.file_size/1048576).toFixed(1)+' MB' : (m.file_size/1024).toFixed(0)+' KB') : '',
@@ -2204,6 +2267,7 @@ async function doPasswordReset() {
 }
 
 async function doSignOut() {
+  await setOnlineStatus(false).catch(()=>{})
   closeAllModals(); closeMoreDrawer()
   if (msgSubscription)  window._db.removeChannel(msgSubscription)
   if (convSubscription) window._db.removeChannel(convSubscription)
@@ -2342,9 +2406,12 @@ function renderConversations(filter='') {
     const initials = user ? user.initials : (c.name[1]||c.name[0]||'G')
     const avatarBg = c.type==='group' ? 'background:linear-gradient(135deg,var(--accent-dim),var(--accent));color:#fff' : ''
     const isMuted  = convMeta[c.id]?.muted
+    const avatarContent = user?.avatar_url
+      ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
+      : initials
     return `<div class="conv-item ${active?'active':''}" onclick="openConversation('${c.id}')" oncontextmenu="showConvMenu(event,'${c.id}')">
       <div class="av-wrap">
-        <div class="av" style="${avatarBg}">${initials}</div>
+        <div class="av" style="${avatarBg}">${avatarContent}</div>
         ${user ? `<div class="status-dot ${user.status||'offline'}"></div>` : ''}
       </div>
       <div class="conv-info">
@@ -2405,8 +2472,8 @@ async function openConversation(id) {
       <div class="chat-header-left">
         <button class="icon-btn back-btn-mobile" onclick="closeChatMobile()">◀</button>
         <div class="av-wrap">
-          <div class="av" style="${conv.type==='group'?'background:linear-gradient(135deg,var(--accent-dim),var(--accent));color:#fff':''}">
-            ${user ? user.initials : (conv.name[1]||conv.name[0]||'G')}
+          <div class="av" style="${conv.type==='group'?'background:linear-gradient(135deg,var(--accent-dim),var(--accent));color:#fff;overflow:hidden':'overflow:hidden'}">
+            ${user?.avatar_url ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : (user ? user.initials : (conv.name[1]||conv.name[0]||'G'))}
           </div>
           ${user ? `<div class="status-dot ${user.status||'offline'}"></div>` : ''}
         </div>
@@ -2450,13 +2517,25 @@ async function openConversation(id) {
         <button class="feat-btn" id="anon-btn-${id}" onclick="toggleAnon('${id}')">👁 Anon</button>
         <button class="feat-btn" onclick="showPollModal('${id}')">📊 Poll</button>
         <button class="feat-btn" onclick="showDestructModal('${id}')">🔥 Destruct</button>
-        <button class="feat-btn" onclick="document.getElementById('file-input-${id}').click()">📎 File</button>
-        <input type="file" id="file-input-${id}" style="display:none" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.txt" onchange="handleFileUpload('${id}',this)"/>
-        <button class="feat-btn" onclick="toast('🎤 Voice messages coming soon','info')">🎤 Voice</button>
+        <label class="feat-btn" style="cursor:pointer">📎 File<input type="file" id="file-input-${id}" style="display:none;position:absolute;width:0;height:0" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.txt" onchange="handleFileUpload('${id}',this)"/></label>
+        <label class="feat-btn" style="cursor:pointer">📷 Photo<input type="file" id="photo-input-${id}" style="display:none;position:absolute;width:0;height:0" accept="image/*" capture="environment" onchange="handleFileUpload('${id}',this)"/></label>
+        <button class="feat-btn" onclick="startVoiceRecording('${id}')">🎤 Voice</button>
       </div>
+      <div id="voice-rec-bar-${id}" style="display:none" class="voice-recorder-bar">
+        <div class="voice-pulse"></div>
+        <span class="voice-timer" id="voice-timer-${id}">0:00</span>
+        <div class="voice-waveform">
+          <div class="voice-bar"></div><div class="voice-bar"></div><div class="voice-bar"></div>
+          <div class="voice-bar"></div><div class="voice-bar"></div><div class="voice-bar"></div>
+        </div>
+        <button class="btn btn-ghost" style="padding:5px 12px;font-size:12px" onclick="cancelVoiceRecording('${id}')">✕ Cancel</button>
+        <button class="btn btn-primary" style="padding:5px 12px;font-size:12px" onclick="stopVoiceRecording('${id}')">Send 🎤</button>
+      </div>
+      <div style="position:relative" id="emoji-picker-wrap-${id}"></div>
       <div class="input-row">
         <div class="input-wrap">
-          <textarea class="msg-input" id="msg-input-${id}" placeholder="Message ${name}... (**bold**, \`code\`)" rows="1"
+          <button class="icon-btn" style="width:28px;height:28px;font-size:18px;flex-shrink:0;margin-bottom:2px" onclick="toggleEmojiPicker('${id}')" title="Emoji">😊</button>
+          <textarea class="msg-input" id="msg-input-${id}" placeholder="Message ${name}…" rows="1"
             onkeydown="handleKey(event,'${id}')" oninput="handleInput(event,'${id}')"></textarea>
         </div>
         <button class="send-btn" onclick="sendMsg('${id}')" id="send-btn-${id}">➤</button>
@@ -2502,13 +2581,23 @@ function renderMessages(id) {
         <div style="font-size:11px;color:var(--text-muted);margin-top:6px">${msg.poll.totalVotes} votes</div>
       </div>`
     } else if (msg.isFile) {
-      bubbleContent=`<div class="file-bubble">
-        <span style="font-size:28px">${msg.fileType||'📄'}</span>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${msg.fileName}</div>
-          <div style="font-size:11px;opacity:.6;margin-top:2px">${msg.fileSize}</div>
-        </div>
-      </div>`
+      const isImg = msg.fileMime && msg.fileMime.startsWith('image/')
+      if (isImg && msg.fileUrl) {
+        bubbleContent=`<div class="img-bubble" onclick="openImageViewer('${msg.fileUrl}','${(msg.fileName||'').replace(/'/g,'')}')">
+          <img src="${msg.fileUrl}" alt="${msg.fileName||'Image'}" style="max-width:220px;max-height:200px;border-radius:10px;display:block;cursor:zoom-in;object-fit:cover" loading="lazy" onerror="this.parentElement.innerHTML='🖼 Image (unavailable)'"/>
+        </div>`
+      } else {
+        bubbleContent=`<a href="${msg.fileUrl||'#'}" target="_blank" rel="noopener" download="${msg.fileName||'file'}" style="text-decoration:none;color:inherit">
+          <div class="file-bubble">
+            <span style="font-size:28px">${msg.fileType||'📄'}</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${msg.fileName||'File'}</div>
+              <div style="font-size:11px;opacity:.6;margin-top:2px">${msg.fileSize} · Tap to download</div>
+            </div>
+            <span style="font-size:16px;opacity:.5">↓</span>
+          </div>
+        </a>`
+      }
     } else if (msg.isCode) {
       bubbleContent=`<pre style="background:var(--bg-void);border:1px solid var(--border-default);border-radius:8px;padding:8px 10px;font-family:var(--font-mono,'monospace');font-size:12px;color:#a8ff78;overflow-x:auto;margin:2px 0;white-space:pre">${msg.text.replace(/```\n?/g,'')}</pre>`
     } else {
@@ -2523,7 +2612,7 @@ function renderMessages(id) {
       <div class="message-row ${isOwn?'own':''}" id="msg-${msg.id}" data-msg-id="${msg.id}" data-conv-id="${id}">
         <div class="swipe-reply-icon" id="swipe-icon-${msg.id}">↩</div>
         <div class="msg-av" style="width:30px">
-          ${!isOwn&&showAvatar?`<div class="av av-sm">${sender?.initials||'?'}</div>`:''}
+          ${!isOwn&&showAvatar?`<div class="av av-sm" style="overflow:hidden">${sender?.avatar_url?`<img src="${sender.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`:(sender?.initials||'?')}</div>`:''}
         </div>
         <div class="message-bubble-wrap">
           ${!isOwn&&showAvatar&&conv.type==='group'?`<div class="sender-name-row">${sender?.name||'Unknown'}</div>`:''}
@@ -2544,6 +2633,14 @@ function renderMessages(id) {
 
   container.innerHTML = html
   container.scrollTop = container.scrollHeight
+
+  // Trigger link previews for visible text messages
+  conv.messages.forEach(msg => {
+    if (!msg.isFile && !msg.isPoll && msg.text) {
+      const url = extractUrl(msg.text)
+      if (url) renderLinkPreview(id, msg.id, url)
+    }
+  })
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -2571,6 +2668,7 @@ function renderStories() {
 function viewStory(storyId) {
   const story = STORIES.find(s=>s.id===storyId)
   if (!story) return
+  recordStatusView(storyId, story.userId)
   const user = USERS[story.userId] || { initials:'?', name:'User' }
   const viewer = document.getElementById('story-viewer')
   viewer.style.display='flex'
@@ -2646,6 +2744,7 @@ function showMsgMenu(e,convId,msgId,isOwn){
       ${menuBtn('📋 Copy',()=>`navigator.clipboard?.writeText(${JSON.stringify(msg.text||'')});toast('Copied!','success');closeAllModals()`)}
       ${menuBtn(isStarred?'⭐ Unstar':'☆ Star',()=>`toggleStarMsg('${convId}','${msgId}');closeAllModals()`)}
       ${menuBtn(isPinned?'📌 Unpin':'📌 Pin',()=>`${isPinned?'unpinMessage':'pinMessage'}('${convId}','${msgId}');closeAllModals()`)}
+      ${menuBtn('↪️ Forward',()=>`showForwardModal('${convId}','${msgId}');closeAllModals()`)}
       ${isOwn==='true'?menuBtn('🗑 Delete',()=>`deleteMsg('${convId}','${msgId}');closeAllModals()`,'#ef4444','rgba(239,68,68,.08)'):''}
     </div>
   </div>`
@@ -3030,6 +3129,7 @@ function showMembersPanel(convId){
       <h3 style="margin:0">👥 Members (${conv.members.length})</h3><button onclick="closeAllModals()" class="icon-btn">✕</button>
     </div>
     ${members}
+    ${conv.type==='group'?`<button class="add-member-btn" onclick="closeAllModals();showAddMemberModal('${convId}')">➕ Add Member</button>`:''}
   </div>`
   document.body.appendChild(overlay)
 }
@@ -3261,12 +3361,29 @@ function runGlobalSearch(q){
   const ql=q.toLowerCase()
   const convMatches=CONVERSATIONS.filter(c=>c.name.toLowerCase().includes(ql)||c.preview?.toLowerCase().includes(ql))
   const userMatches=Object.values(USERS).filter(u=>u.name.toLowerCase().includes(ql)||u.username.toLowerCase().includes(ql))
+  // Search message content across all loaded conversations
+  const msgMatches=[]
+  CONVERSATIONS.forEach(c=>{
+    c.messages.forEach(m=>{
+      if(!m.isFile&&m.text&&m.text.toLowerCase().includes(ql)){
+        msgMatches.push({conv:c,msg:m})
+      }
+    })
+  })
   results.innerHTML=[
     convMatches.length?`<div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Conversations</div>`:'',
     ...convMatches.map(c=>`<div style="padding:10px;border-radius:var(--radius-md);cursor:pointer;transition:.15s" onclick="openConversation('${c.id}');closeAllModals()" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'"><div style="font-weight:600">${c.name}</div><div style="font-size:12px;color:var(--text-muted)">${c.preview||''}</div></div>`),
     userMatches.length?`<div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin:8px 0">People</div>`:'',
-    ...userMatches.map(u=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--radius-md);cursor:pointer;transition:.15s" onclick="startDM('${u.id}');closeAllModals()" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'"><div class="av" style="width:32px;height:32px;font-size:12px">${u.initials}</div><div><div style="font-weight:600;font-size:13px">${u.name}</div><div style="font-size:11px;color:var(--text-muted)">@${u.username}</div></div></div>`),
-    !convMatches.length&&!userMatches.length?`<div style="text-align:center;color:var(--text-muted);padding:24px;font-size:13px">No results for "${q}"</div>`:'',
+    ...userMatches.map(u=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--radius-md);cursor:pointer;transition:.15s" onclick="startDM('${u.id}');closeAllModals()" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'"><div class="av" style="width:32px;height:32px;font-size:12px;overflow:hidden">${u.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`:u.initials}</div><div><div style="font-weight:600;font-size:13px">${u.name}</div><div style="font-size:11px;color:var(--text-muted)">@${u.username}</div></div></div>`),
+    msgMatches.length?`<div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin:8px 0">Messages</div>`:'',
+    ...msgMatches.slice(0,12).map(({conv,msg})=>{
+      const hi=msg.text.replace(new RegExp(ql.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>`<mark style="background:rgba(234,179,8,.4);border-radius:2px">${m}</mark>`)
+      return `<div style="padding:10px;border-radius:var(--radius-md);cursor:pointer;transition:.15s" onclick="openConversation('${conv.id}');closeAllModals()" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+        <div style="font-size:11px;color:var(--accent);font-weight:600;margin-bottom:2px">${conv.name} · ${msg.time}</div>
+        <div style="font-size:13px;color:var(--text-secondary)">${hi.slice(0,120)}</div>
+      </div>`
+    }),
+    !convMatches.length&&!userMatches.length&&!msgMatches.length?`<div style="text-align:center;color:var(--text-muted);padding:24px;font-size:13px">No results for "${q}"</div>`:'',
   ].join('')
 }
 
@@ -3372,6 +3489,391 @@ function previewAvatar(input) {
     }
   }
   reader.readAsDataURL(file)
+}
+
+
+// ══════════════════════════════════════════════════════════════════
+// IMAGE VIEWER
+// ══════════════════════════════════════════════════════════════════
+function openImageViewer(url, caption) {
+  const viewer = document.getElementById('img-viewer')
+  const img    = document.getElementById('img-viewer-img')
+  const cap    = document.getElementById('img-viewer-caption')
+  if (!viewer || !img) return
+  img.src = url
+  if (cap) cap.textContent = caption || ''
+  viewer.style.display = 'flex'
+  document.body.style.overflow = 'hidden'
+}
+function closeImageViewer() {
+  const viewer = document.getElementById('img-viewer')
+  if (viewer) viewer.style.display = 'none'
+  document.body.style.overflow = ''
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeImageViewer() })
+
+// ══════════════════════════════════════════════════════════════════
+// EMOJI PICKER
+// ══════════════════════════════════════════════════════════════════
+const EMOJI_DATA = {
+  'Smileys': ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤧','🥵','🥶','🥴','😵','🤯','🤠','🥳','🥸','😎','🤓','🧐','😕','😟','🙁','☹️','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽'],
+  'Gestures': ['👍','👎','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👋','🤚','🖐','✋','🖖','🤜','🤛','✊','👊','🫵','🤝','👐','🙌','👏','🙏','✍️','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🫀','🫁','🧠','🦷','🦴','👀','👁','👅','👄'],
+  'Hearts': ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','❤️‍🔥','❤️‍🩹','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','☮️','✝️','☪️','🕉','✡️','🔯','🛐','⛎','♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'],
+  'Nature': ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐽','🐸','🐵','🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🪲','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🦣','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🦬','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐕‍🦺','🐈','🐈‍⬛','🪶','🐓','🦃','🦤','🦚','🦜','🦢','🦩','🕊','🐇','🦝','🦨','🦡','🦫','🦦','🦥','🐁','🐀','🐿','🦔','🌵','🎄','🌲','🌳','🌴','🪵','🌱','🌿','☘️','🍀','🎍','🪴','🎋','🍃','🍂','🍁','🍄','🌾','💐','🌷','🌹','🥀','🌺','🌸','🌼','🌻','🌞','🌝','🌛','🌜','🌚','🌕','🌖','🌗','🌘','🌑','🌒','🌓','🌔','🌙','🌟','⭐','🌠','🌌','☁️','⛅','🌤','⛈','🌧','🌦','🌩','🌨','❄️','☃️','⛄','🌬','💨','💧','💦','🌊'],
+  'Food': ['🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🫒','🥦','🥬','🥒','🌶','🫑','🌽','🥕','🫛','🧄','🧅','🥔','🍠','🫘','🌰','🥜','🍞','🥐','🥖','🫓','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🌭','🍔','🍟','🍕','🫔','🌮','🌯','🥙','🧆','🥚','🍲','🥘','🍜','🍝','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍚','🍘','🍥','🥮','🍢','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🍯','🧃','🥤','🧋','☕','🍵','🧉','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧊'],
+  'Activity': ['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🎱','🏓','🏸','🥊','🥋','🎯','⛳','🎣','🤿','🎽','🎿','🛷','🥌','🪃','🏹','🛹','🛼','🪂','🏋️','🤼','🤸','🤺','🏇','⛷','🏂','🪂','🏄','🚣','🧗','🚵','🚴','🏆','🥇','🥈','🥉','🏅','🎖','🏵','🎗','🎫','🎟','🎪','🤹','🎭','🩰','🎨','🖼','🎬','🎤','🎧','🎷','🎸','🎹','🎺','🎻','🪕','🥁','🪘','🎙','📻','📺','📷','📸','🔭','🔬'],
+  'Objects': ['💌','📦','📫','📪','📬','📭','📮','🗳','✏️','✒️','🖊','🖋','📝','💼','📁','📂','🗂','📅','📆','🗒','🗓','📇','📈','📉','📊','📋','📌','📍','✂️','🗃','🗄','🗑','🔒','🔓','🔏','🔐','🔑','🗝','🔨','🪓','⛏','⚒','🛠','🗡','⚔️','🔫','🪃','🛡','🔧','🔩','⚙️','🗜','⚖️','🦯','🔗','⛓','🪝','🧲','⚗️','🔭','🔬','🩺','💊','🩻','🩹','🩼','🧰','🪤','🪣','🧹','🧺','🧻','🚿','🛁','🪠','🧴','🪒','🧼','🪥','🛒','💰','💴','💵','💶','💷','💸','💳','🪙','💹','📱','💻','🖥','🖨','⌨️','🖱','🖲','💾','💿','📀','🧮','📞','☎️','📟','📠','📡','🔋','🔌','💡','🔦','🕯','🪔','🧱','🔑','🗝','🪞','🪟','🛏','🛋','🪑','🚪','🧳','🌂','☂️','🧵','🪡','🧶','👓','🕶','🥽','🌡','⛱','🎠'],
+  'Symbols': ['✅','❌','❎','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔶','🔷','🔸','🔹','🔺','🔻','💠','🔘','🔲','🔳','▪️','▫️','◾','◽','◼️','◻️','⬛','⬜','🟥','🟧','🟨','🟩','🟦','🟪','⭕','✔️','☑️','🔃','🔄','⬆️','⬇️','⬅️','➡️','↗️','↘️','↙️','↖️','↕️','↔️','🔀','🔁','🔂','▶️','⏩','⏭','⏯','◀️','⏪','⏮','🔼','⏫','🔽','⏬','⏸','⏹','⏺','🎦','🔅','🔆','📶','📳','📴','📵','📳','🚫','⛔','📛','🔞','📵','🚭','🚯','🚱','🚳','🚷','🔕','🔇','📴','🛑','❗','‼️','⁉️','❓','❔','💯','🔱','⚜️','♻️','🔰','☣️','☢️','💲','🔤','🔡','🔢','🅰️','🅱️','🆎','🆑','🅾️','🆘','🆔','🆕','🆙','🆒','🆓','🆗','🆖','🅿️','🆚','💹','❇️','✳️','❎'],
+}
+
+let activeEmojiConvId = null
+
+function toggleEmojiPicker(convId) {
+  const wrap = document.getElementById('emoji-picker-wrap-' + convId)
+  if (!wrap) return
+  if (wrap.querySelector('.emoji-picker-pop')) {
+    wrap.innerHTML = ''
+    activeEmojiConvId = null
+    return
+  }
+  activeEmojiConvId = convId
+  const picker = document.createElement('div')
+  picker.className = 'emoji-picker-pop'
+  picker.onclick = e => e.stopPropagation()
+
+  // Search bar
+  picker.innerHTML = `<input placeholder="Search emoji…" style="width:100%;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:6px 10px;color:var(--text-primary);font-family:var(--font-body);font-size:13px;outline:none;margin-bottom:8px" oninput="filterEmojis(this.value,'${convId}')" id="emoji-search-${convId}"/>`
+  picker.innerHTML += `<div id="emoji-body-${convId}" style="max-height:200px;overflow-y:auto">`
+
+  for (const [cat, emojis] of Object.entries(EMOJI_DATA)) {
+    picker.innerHTML += `<span class="emoji-cat-label">${cat}</span><div class="emoji-category" id="emoji-cat-${cat.replace(/\s/g,'')}-${convId}">`
+    picker.innerHTML += emojis.map(em => `<button class="ep-btn" onclick="insertEmoji('${convId}','${em}')">${em}</button>`).join('')
+    picker.innerHTML += '</div>'
+  }
+  picker.innerHTML += '</div>'
+
+  wrap.appendChild(picker)
+  document.getElementById('emoji-search-' + convId)?.focus()
+}
+
+function filterEmojis(q, convId) {
+  const body = document.getElementById('emoji-body-' + convId)
+  if (!body) return
+  if (!q.trim()) {
+    body.querySelectorAll('.ep-btn,.emoji-cat-label,.emoji-category').forEach(el => el.style.display = '')
+    return
+  }
+  // Show only matching emojis, hide category labels for empty cats
+  for (const [cat, emojis] of Object.entries(EMOJI_DATA)) {
+    const catDiv = document.getElementById('emoji-cat-' + cat.replace(/\s/g,'') + '-' + convId)
+    if (!catDiv) continue
+    const btns = catDiv.querySelectorAll('.ep-btn')
+    let visCount = 0
+    btns.forEach(btn => {
+      const match = btn.textContent.includes(q)
+      btn.style.display = match ? '' : 'none'
+      if (match) visCount++
+    })
+    const label = catDiv.previousElementSibling
+    catDiv.style.display = visCount ? '' : 'none'
+    if (label && label.classList.contains('emoji-cat-label')) label.style.display = visCount ? '' : 'none'
+  }
+}
+
+function insertEmoji(convId, emoji) {
+  const input = document.getElementById('msg-input-' + convId)
+  if (!input) return
+  const start = input.selectionStart
+  const end   = input.selectionEnd
+  input.value = input.value.slice(0, start) + emoji + input.value.slice(end)
+  input.selectionStart = input.selectionEnd = start + emoji.length
+  input.focus()
+  handleInput({target: input}, convId)
+  // Don't close picker — let user pick more
+}
+
+// Close emoji picker on outside click
+document.addEventListener('click', e => {
+  if (activeEmojiConvId) {
+    const wrap = document.getElementById('emoji-picker-wrap-' + activeEmojiConvId)
+    if (wrap && !wrap.contains(e.target)) {
+      wrap.innerHTML = ''
+      activeEmojiConvId = null
+    }
+  }
+})
+
+// ══════════════════════════════════════════════════════════════════
+// VOICE RECORDER  (MediaRecorder API)
+// ══════════════════════════════════════════════════════════════════
+let voiceRecorder = null, voiceChunks = [], voiceTimerInterval = null, voiceSeconds = 0, voiceConvId = null
+
+async function startVoiceRecording(convId) {
+  if (voiceRecorder) return
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    voiceConvId = convId
+    voiceChunks = []
+    voiceSeconds = 0
+    voiceRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg' })
+    voiceRecorder.ondataavailable = e => { if (e.data.size > 0) voiceChunks.push(e.data) }
+    voiceRecorder.start(100)
+
+    // Show bar
+    const bar = document.getElementById('voice-rec-bar-' + convId)
+    if (bar) bar.style.display = 'flex'
+
+    // Timer
+    voiceTimerInterval = setInterval(() => {
+      voiceSeconds++
+      const mins = Math.floor(voiceSeconds / 60)
+      const secs = (voiceSeconds % 60).toString().padStart(2, '0')
+      const timer = document.getElementById('voice-timer-' + convId)
+      if (timer) timer.textContent = `${mins}:${secs}`
+      if (voiceSeconds >= 120) stopVoiceRecording(convId) // max 2 min
+    }, 1000)
+  } catch(err) {
+    toast('Microphone access denied', 'error')
+  }
+}
+
+async function stopVoiceRecording(convId) {
+  if (!voiceRecorder) return
+  clearInterval(voiceTimerInterval)
+  voiceRecorder.stop()
+  voiceRecorder.stream?.getTracks().forEach(t => t.stop())
+
+  await new Promise(res => { voiceRecorder.onstop = res })
+  voiceRecorder = null
+
+  const bar = document.getElementById('voice-rec-bar-' + convId)
+  if (bar) bar.style.display = 'none'
+
+  if (voiceChunks.length === 0) return
+  const mime = voiceChunks[0]?.type || 'audio/webm'
+  const blob = new Blob(voiceChunks, { type: mime })
+  const ext  = mime.includes('ogg') ? 'ogg' : 'webm'
+  const file = new File([blob], `voice_${Date.now()}.${ext}`, { type: mime })
+
+  // Upload as regular file
+  await handleFileUpload(convId, { files: [file], value: '' })
+  voiceChunks = []
+}
+
+function cancelVoiceRecording(convId) {
+  if (voiceRecorder) {
+    clearInterval(voiceTimerInterval)
+    voiceRecorder.stop()
+    voiceRecorder.stream?.getTracks().forEach(t => t.stop())
+    voiceRecorder = null
+    voiceChunks = []
+  }
+  const bar = document.getElementById('voice-rec-bar-' + convId)
+  if (bar) bar.style.display = 'none'
+}
+
+// ══════════════════════════════════════════════════════════════════
+// LINK PREVIEWS  (fetch via allorigins.win proxy)
+// ══════════════════════════════════════════════════════════════════
+const linkPreviewCache = {}
+
+async function fetchLinkPreview(url) {
+  if (linkPreviewCache[url]) return linkPreviewCache[url]
+  try {
+    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`
+    const r = await fetch(proxy, { signal: AbortSignal.timeout(5000) })
+    const j = await r.json()
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(j.contents, 'text/html')
+    const getMeta = (prop, name) =>
+      doc.querySelector(`meta[property="${prop}"]`)?.content ||
+      doc.querySelector(`meta[name="${name}"]`)?.content || ''
+    const preview = {
+      title: getMeta('og:title','title') || doc.title?.slice(0,80) || '',
+      desc:  getMeta('og:description','description')?.slice(0,160) || '',
+      image: getMeta('og:image','') || '',
+      domain: new URL(url).hostname.replace('www.',''),
+      url,
+    }
+    linkPreviewCache[url] = preview
+    return preview
+  } catch(e) { return null }
+}
+
+function extractUrl(text) {
+  const m = text.match(/https?:\/\/[^\s]+/)
+  return m ? m[0] : null
+}
+
+async function renderLinkPreview(convId, msgId, url) {
+  const data = await fetchLinkPreview(url)
+  if (!data || !data.title) return
+  const bubble = document.querySelector(`#msg-${msgId} .message-bubble`)
+  if (!bubble || bubble.querySelector('.link-preview')) return
+  const previewHtml = `<div class="link-preview" onclick="window.open('${data.url}','_blank')">
+    ${data.image ? `<img src="${data.image}" style="width:100%;height:100px;object-fit:cover" onerror="this.style.display='none'" loading="lazy"/>` : ''}
+    <div class="link-preview-body">
+      <div class="link-preview-domain">${data.domain}</div>
+      <div class="link-preview-title">${data.title}</div>
+      ${data.desc ? `<div class="link-preview-desc">${data.desc}</div>` : ''}
+    </div>
+  </div>`
+  bubble.insertAdjacentHTML('beforeend', previewHtml)
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ONLINE PRESENCE  (update is_online on open / close)
+// ══════════════════════════════════════════════════════════════════
+async function setOnlineStatus(isOnline) {
+  if (!myProfile?.id) return
+  await window._db.from('profiles').update({
+    is_online: isOnline,
+    last_seen_at: new Date().toISOString(),
+  }).eq('id', myProfile.id)
+}
+
+// Set online when app boots, offline when tab is hidden / closed
+window.addEventListener('focus', () => setOnlineStatus(true))
+window.addEventListener('blur',  () => setOnlineStatus(false))
+document.addEventListener('visibilitychange', () => {
+  setOnlineStatus(document.visibilityState === 'visible')
+})
+window.addEventListener('beforeunload', () => setOnlineStatus(false))
+
+// ══════════════════════════════════════════════════════════════════
+// FORWARD MESSAGE
+// ══════════════════════════════════════════════════════════════════
+function showForwardModal(convId, msgId) {
+  closeAllModals()
+  const conv = CONVERSATIONS.find(c => c.id === convId)
+  const msg  = conv?.messages.find(m => m.id === msgId)
+  if (!msg) return
+  const overlay = document.createElement('div')
+  overlay.className = 'modal-overlay'
+  overlay.onclick = e => { if (e.target === overlay) closeAllModals() }
+  overlay.innerHTML = `<div class="modal pop-in" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h3 style="margin:0">↪️ Forward to…</h3>
+      <button onclick="closeAllModals()" class="icon-btn">✕</button>
+    </div>
+    <div style="max-height:340px;overflow-y:auto">
+      ${CONVERSATIONS.filter(c => c.id !== convId).map(c => `
+        <label class="forward-conv-item">
+          <input type="checkbox" id="fwd-${c.id}" value="${c.id}"/>
+          <div class="av" style="width:36px;height:36px;font-size:13px;flex-shrink:0">${c.name[0]||'?'}</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:13.5px">${c.name}</div>
+            <div style="font-size:11px;color:var(--text-muted)">${c.type==='dm'?'Direct Message':'Group'}</div>
+          </div>
+        </label>`).join('') || '<div style="color:var(--text-muted);font-size:13px;padding:12px">No other conversations.</div>'}
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="closeAllModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="doForwardMsg('${convId}','${msgId}')">↪️ Forward</button>
+    </div>
+  </div>`
+  document.body.appendChild(overlay)
+}
+
+async function doForwardMsg(fromConvId, msgId) {
+  const conv    = CONVERSATIONS.find(c => c.id === fromConvId)
+  const msg     = conv?.messages.find(m => m.id === msgId)
+  if (!msg) return
+  const targets = [...document.querySelectorAll('input[id^="fwd-"]:checked')].map(el => el.value)
+  if (targets.length === 0) { toast('Select at least one conversation', 'error'); return }
+
+  for (const targetId of targets) {
+    const { data, error } = await window._db.from('messages').insert({
+      conversation_id: targetId,
+      sender_id:       myProfile.id,
+      text:            msg.isFile ? msg.fileName : msg.text,
+      type:            msg.isFile ? (msg.fileMime?.startsWith('image') ? 'image' : 'file') : 'text',
+      file_url:        msg.fileUrl || null,
+      file_name:       msg.fileName || null,
+      file_size:       null,
+      file_mime:       msg.fileMime || null,
+    }).select().single()
+    if (!error && data) {
+      const targetConv = CONVERSATIONS.find(c => c.id === targetId)
+      if (targetConv) {
+        targetConv.messages.push(mapMessage({ ...data, message_reactions: [], message_reads: [] }))
+        targetConv.preview = '↪️ Forwarded: ' + (msg.text?.slice(0,40) || msg.fileName || '')
+        targetConv.time = formatMsgTime(data.created_at)
+        if (state.activeConvId === targetId) renderMessages(targetId)
+      }
+    }
+  }
+  await window._db.from('conversations').update({ updated_at: new Date().toISOString() }).in('id', targets)
+  renderConversations()
+  closeAllModals()
+  toast(`↪️ Forwarded to ${targets.length} conversation${targets.length>1?'s':''}!`, 'success')
+}
+
+// ══════════════════════════════════════════════════════════════════
+// ADD MEMBER TO GROUP
+// ══════════════════════════════════════════════════════════════════
+function showAddMemberModal(convId) {
+  closeAllModals()
+  const conv = CONVERSATIONS.find(c => c.id === convId)
+  if (!conv || conv.type !== 'group') return
+  const nonMembers = Object.values(USERS).filter(u => !conv.members.includes(u.id))
+  const overlay = document.createElement('div')
+  overlay.className = 'modal-overlay'
+  overlay.onclick = e => { if (e.target === overlay) closeAllModals() }
+  overlay.innerHTML = `<div class="modal pop-in" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h3 style="margin:0">➕ Add Member</h3>
+      <button onclick="closeAllModals()" class="icon-btn">✕</button>
+    </div>
+    ${nonMembers.length === 0
+      ? '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px">All users are already in this group.</div>'
+      : `<div style="max-height:300px;overflow-y:auto">
+          ${nonMembers.map(u => `
+            <label class="forward-conv-item">
+              <input type="checkbox" id="am-${u.id}" value="${u.id}"/>
+              <div class="av" style="width:36px;height:36px;font-size:13px;flex-shrink:0;overflow:hidden">
+                ${u.avatar_url ? `<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : u.initials}
+              </div>
+              <div><div style="font-weight:600;font-size:13.5px">${u.name}</div><div style="font-size:12px;color:var(--text-muted)">@${u.username}</div></div>
+            </label>`).join('')}
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" onclick="closeAllModals()">Cancel</button>
+          <button class="btn btn-primary" onclick="doAddMembers('${convId}')">➕ Add</button>
+        </div>`}
+  </div>`
+  document.body.appendChild(overlay)
+}
+
+async function doAddMembers(convId) {
+  const selected = [...document.querySelectorAll('input[id^="am-"]:checked')].map(el => el.value)
+  if (selected.length === 0) { toast('Select at least one person', 'error'); return }
+  const conv = CONVERSATIONS.find(c => c.id === convId)
+  let added = 0
+  for (const uid of selected) {
+    // Use add_group_member RPC (security definer, bypasses RLS)
+    const { error: insErr } = await window._db.rpc('add_group_member', {
+      group_conv_id: convId,
+      new_user_id: uid
+    })
+    if (!insErr) {
+      if (conv && !conv.members.includes(uid)) conv.members.push(uid)
+      added++
+    }
+  }
+  closeAllModals()
+  toast(`✅ Added ${added} member${added>1?'s':''}`, 'success')
+}
+
+// ══════════════════════════════════════════════════════════════════
+// STATUS VIEW COUNT  (record who viewed a status)
+// ══════════════════════════════════════════════════════════════════
+async function recordStatusView(storyId, userId) {
+  if (!userId || userId === myProfile.id) return
+  await window._db.from('status_views').upsert(
+    { status_id: storyId, viewer_id: myProfile.id },
+    { onConflict: 'status_id,viewer_id', ignoreDuplicates: true }
+  )
 }
 
 // ── Visual viewport: keep input above keyboard on iOS ──
