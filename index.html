@@ -189,9 +189,29 @@ body{font-size:calc(14px * var(--font-size-scale))}
 .pinned-msg{outline:2px solid var(--accent) !important;outline-offset:2px}
 
 /* READ RECEIPTS */
-.tick{font-size:11px;color:var(--text-muted);margin-left:2px}
+.tick{font-size:11px;color:var(--text-muted);margin-left:2px;transition:color .3s ease}
+.tick.sent{color:var(--text-muted)}
 .tick.delivered{color:var(--text-muted)}
 .tick.read{color:var(--accent)}
+
+/* PINNED CONVERSATION */
+.conv-item.pinned-conv::after{content:'📌';position:absolute;top:6px;right:8px;font-size:10px;opacity:.5}
+.conv-item{position:relative}
+.pinned-conv-divider{padding:6px 14px 4px;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.pinned-conv-divider::after{content:'';flex:1;height:1px;background:var(--border-subtle)}
+
+/* CONTACT CARD MESSAGE */
+.contact-card-bubble{display:flex;align-items:center;gap:10px;padding:4px 2px;cursor:pointer;transition:opacity .15s}
+.contact-card-bubble:hover{opacity:.85}
+.contact-card-info{flex:1;min-width:0}
+.contact-card-name{font-weight:700;font-size:13.5px;color:var(--text-primary)}
+.contact-card-username{font-size:11.5px;color:var(--accent)}
+.contact-card-action{font-size:11px;color:var(--text-muted);margin-top:2px}
+
+/* SWIPE BETWEEN CONVS (mobile) */
+.swipe-nav-hint{position:fixed;top:50%;transform:translateY(-50%);width:32px;height:60px;display:flex;align-items:center;justify-content:center;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.25);border-radius:8px;font-size:18px;color:var(--accent);pointer-events:none;z-index:50;opacity:0;transition:opacity .2s}
+.swipe-nav-hint.left{left:4px}
+.swipe-nav-hint.right{right:4px;transform:translateY(-50%) scaleX(-1)}
 
 /* DESTRUCT TIMER BADGE */
 .destruct-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:#ef4444;border-radius:99px;padding:2px 8px;font-size:11px;font-weight:600;margin-top:5px}
@@ -227,6 +247,30 @@ body{font-size:calc(14px * var(--font-size-scale))}
 
 /* MUTE BADGE */
 .mute-icon{font-size:11px;color:var(--text-muted);margin-left:3px}
+
+/* SIDEBAR WALLPAPER */
+.sidebar-wallpaper{position:absolute;inset:0;pointer-events:none;z-index:0;opacity:0.07;border-radius:inherit}
+.sidebar{position:relative}
+.sidebar>*:not(.sidebar-wallpaper){position:relative;z-index:1}
+
+/* USER PROFILE CARD */
+.profile-card-header{display:flex;flex-direction:column;align-items:center;padding:28px 20px 20px;text-align:center;position:relative}
+.profile-card-avatar{width:82px;height:82px;border-radius:50%;border:3px solid var(--accent);box-shadow:0 0 0 6px var(--accent-glow);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;background:linear-gradient(135deg,var(--accent-dim),var(--accent));color:#fff;margin-bottom:14px;flex-shrink:0}
+.profile-card-name{font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--text-primary);margin-bottom:3px}
+.profile-card-username{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:6px}
+.profile-card-bio{font-size:13px;color:var(--text-secondary);max-width:260px;line-height:1.5;margin-bottom:12px}
+.profile-card-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);background:var(--bg-raised);padding:4px 10px;border-radius:99px;border:1px solid var(--border-subtle)}
+.profile-card-status .dot{width:7px;height:7px;border-radius:50%;background:var(--text-muted)}
+.profile-card-status.is-online .dot{background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.5)}
+.profile-info-row{display:flex;align-items:center;gap:10px;padding:12px 18px;border-top:1px solid var(--border-subtle)}
+.profile-info-icon{font-size:16px;width:28px;text-align:center;flex-shrink:0}
+.profile-info-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;font-weight:700;margin-bottom:1px}
+.profile-info-value{font-size:13.5px;color:var(--text-primary);font-weight:500}
+
+/* GROUP ADMIN CONTROLS */
+.admin-badge{display:inline-flex;align-items:center;gap:3px;background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.3);color:#eab308;border-radius:99px;padding:1px 7px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-left:4px}
+.member-row-actions{display:flex;gap:4px;opacity:0;transition:opacity .18s}
+.member-row:hover .member-row-actions{opacity:1}
 
 /* UNREAD NOTIF BADGE on bell icon (driven by data) */
 .notif-count-badge{position:absolute;top:4px;right:4px;min-width:16px;height:16px;border-radius:99px;background:#ef4444;border:1.5px solid var(--bg-deep);font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;pointer-events:none}
@@ -606,7 +650,7 @@ body{font-size:calc(14px * var(--font-size-scale))}
 .tab-btn:hover:not(.active){background:var(--bg-hover);color:var(--text-secondary)}
 .conversations-list{flex:1;overflow-y:auto;padding:4px 6px}
 .conv-item{display:flex;align-items:center;gap:10px;padding:var(--conv-pad);border-radius:var(--radius-lg);cursor:pointer;position:relative;border:1px solid transparent}
-.av-wrap{position:relative;flex-shrink:0}
+.av-wrap{position:relative;flex-shrink:0;cursor:pointer}
 .av{width:var(--avatar-size);height:var(--avatar-size);border-radius:50%;background:var(--bg-card);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:var(--accent);border:2px solid var(--border-default);font-family:var(--font-display);flex-shrink:0}
 .av img{width:100%;height:100%;border-radius:50%;object-fit:cover}
 .av-sm{width:30px!important;height:30px!important;font-size:12px!important}
@@ -654,7 +698,7 @@ body{font-size:calc(14px * var(--font-size-scale))}
 .date-divider span{background:var(--bg-raised);border:1px solid var(--border-subtle);padding:2px 10px;border-radius:99px;white-space:nowrap}
 .message-row{display:flex;align-items:flex-end;gap:8px;padding:1px 0;position:relative}
 .message-row.own{flex-direction:row-reverse}
-.msg-av{width:30px;flex-shrink:0}
+.msg-av{width:30px;flex-shrink:0;cursor:pointer}
 .message-bubble-wrap{max-width:62%;display:flex;flex-direction:column}
 .message-row.own .message-bubble-wrap{align-items:flex-end}
 .sender-name-row{font-size:11px;font-weight:600;color:var(--mood);margin-bottom:3px;padding-left:2px}
@@ -1097,6 +1141,7 @@ body{font-size:calc(14px * var(--font-size-scale))}
 
   <!-- SIDEBAR -->
   <div class="sidebar" id="sidebar">
+    <canvas id="sidebar-wallpaper-canvas" class="sidebar-wallpaper" style="display:none"></canvas>
     <div class="sidebar-header">
       <div class="logo"><div class="logo-icon">🌿</div>LEAFY</div>
       <div style="display:flex;gap:4px;align-items:center">
@@ -1513,6 +1558,7 @@ async function loadSettings() {
     state.notif_vibrate  = data.notif_vibrate  ?? true
     state.notif_preview  = data.notif_preview  ?? true
     state.notif_groups   = data.notif_groups   ?? false
+    state.sidebarWallpaper = data.sidebar_wallpaper || 'none'
 
     // Apply persisted theme
     document.documentElement.setAttribute('data-theme', state.theme)
@@ -1521,6 +1567,7 @@ async function loadSettings() {
     document.documentElement.style.setProperty('--font-size-scale', state.fontSize)
     if (state.bubbleStyle !== 'default') document.body.setAttribute('data-bubble', state.bubbleStyle)
     applyDensity(state.density)
+    if (state.sidebarWallpaper && state.sidebarWallpaper !== 'none') applySidebarWallpaper(state.sidebarWallpaper)
   }
 }
 
@@ -1539,6 +1586,7 @@ async function persistSettings() {
     notif_vibrate:  state.notif_vibrate,
     notif_preview:  state.notif_preview,
     notif_groups:   state.notif_groups,
+    sidebar_wallpaper: state.sidebarWallpaper || 'none',
     updated_at:     new Date().toISOString(),
   })
 }
@@ -1578,7 +1626,7 @@ async function loadConversations() {
   // Get all conversation IDs this user belongs to
   const { data: memberRows } = await window._db
     .from('conversation_members')
-    .select('conversation_id, muted, archived, pinned_msg_id, last_read_at')
+    .select('conversation_id, muted, archived, pinned_msg_id, last_read_at, pinned_conv')
     .eq('user_id', myProfile.id)
     .is('left_at', null)
 
@@ -1592,6 +1640,7 @@ async function loadConversations() {
       muted:        r.muted || false,
       archived:     r.archived || false,
       pinnedMsgId:  r.pinned_msg_id || null,
+      pinnedConv:   r.pinned_conv || false,
       last_read_at: r.last_read_at,
     }
   })
@@ -1745,6 +1794,8 @@ function mapMessage(m) {
   })
 
   const readBy = (m.message_reads || []).some(r => r.user_id !== myProfile.id)
+  // Delivery status: 'read' > 'delivered' (DB confirmed) > 'sent' (optimistic)
+  const deliveryStatus = readBy ? 'read' : (m.id && !m._optimistic ? 'delivered' : 'sent')
 
   return {
     id:        m.id,
@@ -1756,6 +1807,7 @@ function mapMessage(m) {
     date:      formatDateLabel(m.created_at),
     reactions: Object.values(reactionMap),
     readBy,
+    deliveryStatus,
     isDestruct: m.is_destruct || false,
     isFile:    m.type === 'file' || m.type === 'image',
     fileUrl:   m.file_url || '',
@@ -1764,6 +1816,8 @@ function mapMessage(m) {
     fileName:  m.file_name || '',
     fileSize:  m.file_size ? (m.file_size > 1048576 ? (m.file_size/1048576).toFixed(1)+' MB' : (m.file_size/1024).toFixed(0)+' KB') : '',
     isCode:    m.type === 'code',
+    isContact: m.type === 'contact',
+    contactId: m.file_name || null, // we store contactId in file_name for contact messages
     replyTo:   m.reply_to_id ? { msgId: m.reply_to_id, text: '', senderName: '' } : null,
   }
 }
@@ -2271,10 +2325,19 @@ function subscribeToConversations(convIds) {
       }
     })
     .subscribe()
-}
 
-// ══════════════════════════════════════════════════════════════════
-// DELETE / SOFT-DELETE MESSAGE
+  // message_reads realtime — live "read" receipt updates for sent messages
+  window._db
+    .channel('message-reads-realtime')
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'message_reads',
+    }, payload => {
+      handleMessageRead(payload)
+    })
+    .subscribe()
+}
 // ══════════════════════════════════════════════════════════════════
 async function deleteMsg(convId, msgId) {
   await window._db.from('messages').update({
@@ -2291,8 +2354,20 @@ async function deleteMsg(convId, msgId) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// CONVERSATION MEMBER META  (mute / archive via conversation_members)
+// CONVERSATION MEMBER META  (mute / archive / pin via conversation_members)
 // ══════════════════════════════════════════════════════════════════
+async function togglePinConv(convId) {
+  if (!convMeta[convId]) convMeta[convId] = {}
+  convMeta[convId].pinnedConv = !convMeta[convId].pinnedConv
+  // Persist — requires: ALTER TABLE conversation_members ADD COLUMN IF NOT EXISTS pinned_conv boolean DEFAULT false;
+  window._db.from('conversation_members')
+    .update({ pinned_conv: convMeta[convId].pinnedConv })
+    .eq('conversation_id', convId).eq('user_id', myProfile.id)
+    .then(() => {}).catch(() => {})
+  renderConversations()
+  toast(convMeta[convId].pinnedConv ? '📌 Pinned to top' : '📌 Unpinned', 'info')
+}
+
 async function toggleMuteConv(convId) {
   if (!convMeta[convId]) convMeta[convId] = {}
   convMeta[convId].muted = !convMeta[convId].muted
@@ -2340,11 +2415,48 @@ async function unpinMessage(convId) {
 async function markAsRead(convId) {
   const conv = CONVERSATIONS.find(c => c.id === convId)
   if (conv) conv.unread = 0
+
   await window._db.from('conversation_members')
     .update({ last_read_at: new Date().toISOString() })
     .eq('conversation_id', convId).eq('user_id', myProfile.id)
+
+  // Insert message_reads rows for all unread messages (mark as read for senders)
+  if (conv && conv.messages.length > 0) {
+    const unreadMsgIds = conv.messages
+      .filter(m => m.sender !== 'me')
+      .map(m => m.id)
+      .filter(Boolean)
+    if (unreadMsgIds.length > 0) {
+      // Upsert in batches of 50 to avoid hitting request limits
+      const batch = unreadMsgIds.slice(-50).map(id => ({
+        message_id: id,
+        user_id: myProfile.id,
+        conversation_id: convId,
+      }))
+      window._db.from('message_reads')
+        .upsert(batch, { onConflict: 'message_id,user_id', ignoreDuplicates: true })
+        .then(() => {}).catch(() => {})
+    }
+  }
+
   renderConversations()
   updateNotifBadge()
+}
+
+// When a realtime message_read INSERT comes in, update the local message deliveryStatus
+function handleMessageRead(payload) {
+  const { message_id, user_id } = payload.new || {}
+  if (!message_id || user_id === myProfile.id) return
+  // Find and update the message across all conversations
+  for (const conv of CONVERSATIONS) {
+    const msg = conv.messages.find(m => m.id === message_id)
+    if (msg && msg.sender === 'me') {
+      msg.readBy = true
+      msg.deliveryStatus = 'read'
+      if (state.activeConvId === conv.id) renderMessages(conv.id)
+      break
+    }
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -2498,6 +2610,10 @@ function launchApp() {
       loadStatuses()
       updateNotifBadge()
       applyDensity(state.density)
+      if (state.sidebarWallpaper && state.sidebarWallpaper !== 'none') {
+        setTimeout(() => applySidebarWallpaper(state.sidebarWallpaper), 100)
+      }
+      initLongPress()
       if (state.isMobile) mobileTab('chats')
       else if (CONVERSATIONS.length > 0) openConversation(CONVERSATIONS[0].id)
     }, 580)
@@ -2544,18 +2660,23 @@ function renderConversations(filter='') {
     return
   }
 
-  list.innerHTML = convs.map(c => {
+  // Sort: pinned first (preserve insertion order within each group)
+  const pinned   = convs.filter(c => convMeta[c.id]?.pinnedConv)
+  const unpinned = convs.filter(c => !convMeta[c.id]?.pinnedConv)
+
+  const renderItem = c => {
     const active   = c.id === state.activeConvId
     const user     = c.type==='dm' ? USERS[c.otherId] : null
     const initials = user ? user.initials : (c.name[1]||c.name[0]||'G')
     const avatarBg = c.type==='group' ? 'background:linear-gradient(135deg,var(--accent-dim),var(--accent));color:#fff' : ''
     const isMuted  = convMeta[c.id]?.muted
+    const isPinned = convMeta[c.id]?.pinnedConv
     const avatarContent = user?.avatar_url
       ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
       : initials
-    return `<div class="conv-item ${active?'active':''}" onclick="openConversation('${c.id}')" oncontextmenu="showConvMenu(event,'${c.id}')">
+    return `<div class="conv-item ${active?'active':''} ${isPinned?'pinned-conv':''}" onclick="openConversation('${c.id}')" oncontextmenu="showConvMenu(event,'${c.id}')">
       <div class="av-wrap">
-        <div class="av" style="${avatarBg}">${avatarContent}</div>
+        <div class="av" style="${avatarBg};overflow:hidden">${avatarContent}</div>
         ${user ? `<div class="status-dot ${user.status||'offline'}"></div>` : ''}
       </div>
       <div class="conv-info">
@@ -2568,7 +2689,16 @@ function renderConversations(filter='') {
         ${c.unread>0&&isMuted?`<div class="unread-badge" style="background:var(--text-muted)">${c.unread}</div>`:''}
       </div>
     </div>`
-  }).join('')
+  }
+
+  let html = ''
+  if (pinned.length > 0) {
+    html += `<div class="pinned-conv-divider">📌 Pinned</div>`
+    html += pinned.map(renderItem).join('')
+    if (unpinned.length > 0) html += `<div class="pinned-conv-divider">Recent</div>`
+  }
+  html += unpinned.map(renderItem).join('')
+  list.innerHTML = html
 }
 
 function filterConvs(q) { renderConversations(q) }
@@ -2668,6 +2798,7 @@ async function openConversation(id) {
         <label class="feat-btn" style="cursor:pointer">📎 File<input type="file" id="file-input-${id}" style="display:none;position:absolute;width:0;height:0" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.txt" onchange="handleFileUpload('${id}',this)"/></label>
         <label class="feat-btn" style="cursor:pointer">📷 Photo<input type="file" id="photo-input-${id}" style="display:none;position:absolute;width:0;height:0" accept="image/*" capture="environment" onchange="handleFileUpload('${id}',this)"/></label>
         <button class="feat-btn" onclick="startVoiceRecording('${id}')">🎤 Voice</button>
+        <button class="feat-btn" onclick="showShareContactModal('${id}')">👤 Contact</button>
       </div>
       <div id="voice-rec-bar-${id}" style="display:none" class="voice-recorder-bar">
         <div class="voice-pulse"></div>
@@ -2693,6 +2824,10 @@ async function openConversation(id) {
   renderMessages(id)
   renderPinnedBar(id)
   setTimeout(() => initSwipeToReply(id), 100)
+  if (state.isMobile) {
+    ensureSwipeNavHints()
+    setTimeout(() => initConvSwipe(), 150)
+  }
   if (state.chatBackground && state.chatBackground !== 'none') applyAnimatedBackground(chatArea, state.chatBackground)
   if (state.isMobile) { mobilePage='chat'; hideBottomNav(); closeSidebar() }
 }
@@ -2746,6 +2881,19 @@ function renderMessages(id) {
           </div>
         </a>`
       }
+    } else if (msg.isContact) {
+      const cu = USERS[msg.contactId] || { name: msg.text, initials: (msg.text||'?')[0].toUpperCase(), username: '', avatar_url: null }
+      bubbleContent = `<div class="contact-card-bubble" onclick="showUserProfile('${msg.contactId}')">
+        <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent-dim),var(--accent));display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">
+          ${cu.avatar_url ? `<img src="${cu.avatar_url}" style="width:100%;height:100%;object-fit:cover"/>` : (cu.initials||'?')}
+        </div>
+        <div class="contact-card-info">
+          <div class="contact-card-name">${cu.name || msg.text || 'Unknown'}</div>
+          <div class="contact-card-username">@${cu.username || ''}</div>
+          <div class="contact-card-action">👆 Tap to view profile</div>
+        </div>
+        <span style="font-size:20px;opacity:.4">›</span>
+      </div>`
     } else if (msg.isCode) {
       bubbleContent=`<pre style="background:var(--bg-void);border:1px solid var(--border-default);border-radius:8px;padding:8px 10px;font-family:var(--font-mono,'monospace');font-size:12px;color:#a8ff78;overflow-x:auto;margin:2px 0;white-space:pre">${msg.text.replace(/```\n?/g,'')}</pre>`
     } else {
@@ -2771,7 +2919,7 @@ function renderMessages(id) {
           ${reactionsHtml}
           <div class="msg-time">
             ${msg.time}
-            ${isOwn&&myProfile.read_receipts?`<span class="tick ${msg.readBy?'read':'delivered'}">✓✓</span>`:''}
+            ${isOwn&&myProfile.read_receipts?`<span class="tick ${msg.deliveryStatus||'delivered'}">${msg.deliveryStatus==='sent'?'✓':'✓✓'}</span>`:''}
             ${msg.isDestruct?`<span class="destruct-badge">🔥</span>`:''}
             ${starredMessages.find(s=>s.msgId===msg.id)?`<span style="font-size:10px">⭐</span>`:''}
           </div>
@@ -2971,11 +3119,13 @@ function showConvMenu(e,convId){
   e.preventDefault()
   const conv=CONVERSATIONS.find(c=>c.id===convId); if(!conv) return
   const isMuted=convMeta[convId]?.muted
+  const isPinned=convMeta[convId]?.pinnedConv
   closeAllModals()
   const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.onclick=closeAllModals
   overlay.innerHTML=`<div class="modal" style="max-width:220px;padding:8px" onclick="event.stopPropagation()">
     <div style="padding:4px 8px 8px;font-size:12px;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border-subtle);margin-bottom:4px">${conv.name}</div>
     ${menuBtn('💬 Open Chat',()=>`openConversation('${convId}');closeAllModals()`)}
+    ${menuBtn(isPinned?'📌 Unpin':'📌 Pin to Top',()=>`togglePinConv('${convId}');closeAllModals()`)}
     ${menuBtn(isMuted?'🔔 Unmute':'🔕 Mute',()=>`toggleMuteConv('${convId}');closeAllModals()`)}
     ${menuBtn('🗂 Archive',()=>`archiveConv('${convId}');closeAllModals()`)}
     ${menuBtn('✓ Mark as Read',()=>`markAsRead('${convId}');closeAllModals()`)}
@@ -3026,7 +3176,84 @@ function initSwipeToReply(convId){
 }
 
 // ══════════════════════════════════════════════════════════════════
-// SELF-DESTRUCT MESSAGE MODAL
+// SWIPE BETWEEN CONVERSATIONS (mobile)
+// Horizontal swipe on the chat HEADER navigates to prev/next conv
+// ══════════════════════════════════════════════════════════════════
+let _convSwipeStartX = 0, _convSwipeStartY = 0, _convSwiping = false
+
+function initConvSwipe() {
+  const chatArea = document.getElementById('chat-area')
+  if (!chatArea) return
+
+  chatArea.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) return
+    // Only trigger on the chat header area
+    if (!e.target.closest('.chat-header')) return
+    _convSwipeStartX = e.touches[0].clientX
+    _convSwipeStartY = e.touches[0].clientY
+    _convSwiping = true
+  }, { passive: true })
+
+  chatArea.addEventListener('touchmove', e => {
+    if (!_convSwiping || e.touches.length !== 1) return
+    const dx = e.touches[0].clientX - _convSwipeStartX
+    const dy = e.touches[0].clientY - _convSwipeStartY
+    if (Math.abs(dy) > Math.abs(dx)) { _convSwiping = false; return }
+    // Show directional hint
+    const hintLeft  = document.getElementById('swipe-nav-left')
+    const hintRight = document.getElementById('swipe-nav-right')
+    if (dx > 30 && hintLeft)  hintLeft.style.opacity  = Math.min((dx - 30) / 60, 1)
+    if (dx < -30 && hintRight) hintRight.style.opacity = Math.min((-dx - 30) / 60, 1)
+  }, { passive: true })
+
+  chatArea.addEventListener('touchend', e => {
+    if (!_convSwiping) return
+    _convSwiping = false
+    document.getElementById('swipe-nav-left')?.style && (document.getElementById('swipe-nav-left').style.opacity = '0')
+    document.getElementById('swipe-nav-right')?.style && (document.getElementById('swipe-nav-right').style.opacity = '0')
+    const dx = (e.changedTouches[0]?.clientX || 0) - _convSwipeStartX
+    const dy = (e.changedTouches[0]?.clientY || 0) - _convSwipeStartY
+    if (Math.abs(dx) < 60 || Math.abs(dy) > 50) return
+
+    // Get current visible conversations (same filter as list)
+    const tab = state.tab
+    const visibleConvs = CONVERSATIONS.filter(c => {
+      if (convMeta[c.id]?.archived) return false
+      if (tab === 'dms')    return c.type === 'dm'
+      if (tab === 'groups') return c.type === 'group'
+      return true
+    })
+    const pinned   = visibleConvs.filter(c => convMeta[c.id]?.pinnedConv)
+    const unpinned = visibleConvs.filter(c => !convMeta[c.id]?.pinnedConv)
+    const ordered  = [...pinned, ...unpinned]
+    const idx = ordered.findIndex(c => c.id === state.activeConvId)
+    if (idx === -1) return
+
+    let nextIdx
+    if (dx > 60) {
+      // Swipe right → previous conversation
+      nextIdx = idx - 1
+      if (nextIdx < 0) { toast('First conversation', 'info'); return }
+    } else {
+      // Swipe left → next conversation
+      nextIdx = idx + 1
+      if (nextIdx >= ordered.length) { toast('Last conversation', 'info'); return }
+    }
+    if (navigator.vibrate) navigator.vibrate(20)
+    openConversation(ordered[nextIdx].id)
+  }, { passive: true })
+}
+
+// Inject swipe nav hints into DOM once
+function ensureSwipeNavHints() {
+  if (document.getElementById('swipe-nav-left')) return
+  const left  = document.createElement('div')
+  left.id = 'swipe-nav-left';  left.className = 'swipe-nav-hint left';  left.textContent = '‹'
+  const right = document.createElement('div')
+  right.id = 'swipe-nav-right'; right.className = 'swipe-nav-hint right'; right.textContent = '‹'
+  document.body.appendChild(left)
+  document.body.appendChild(right)
+}
 // ══════════════════════════════════════════════════════════════════
 function showDestructModal(id){
   closeAllModals()
@@ -3193,6 +3420,11 @@ function showSettingsModal(){
         ${BG_OPTIONS.map(bg=>`<div class="bg-swatch ${state.chatBackground===bg.id?'selected':''}" title="${bg.label}" onclick="setChatBg('${bg.id}')" style="background:var(--bg-raised)">${bg.emoji}</div>`).join('')}
       </div>
     </div>
+    <div class="settings-section"><h4>Sidebar Wallpaper</h4>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${[{id:'none',emoji:'🚫',label:'None'},{id:'dots',emoji:'·⁺·',label:'Dots'},{id:'leaves',emoji:'🌿',label:'Leaves'},{id:'geo',emoji:'◆',label:'Geometric'},{id:'waves',emoji:'〜',label:'Waves'},{id:'grid',emoji:'⊞',label:'Grid'}].map(w=>`<div class="bg-swatch ${state.sidebarWallpaper===w.id?'selected':''}" title="${w.label}" onclick="setSidebarWallpaper('${w.id}')" style="background:var(--bg-raised);font-size:13px;font-weight:700">${w.emoji}</div>`).join('')}
+      </div>
+    </div>
     <div class="settings-section"><h4>Notifications</h4>
       ${'Notification' in window && Notification.permission !== 'granted' ? `
       <div style="padding:10px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.3);border-radius:var(--radius-md);margin-bottom:12px;display:flex;align-items:center;gap:10px">
@@ -3341,27 +3573,197 @@ function showEditProfileModal(){
 }
 
 // ══════════════════════════════════════════════════════════════════
-// MEMBERS PANEL
+// ENHANCED MEMBERS PANEL (with admin controls)
 // ══════════════════════════════════════════════════════════════════
-function showMembersPanel(convId){
+async function showMembersPanel(convId) {
   closeAllModals()
-  const conv=CONVERSATIONS.find(c=>c.id===convId); if(!conv) return
-  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.onclick=e=>{if(e.target===overlay)closeAllModals()}
-  const members=conv.members.map(uid=>{
-    const u=uid===myProfile.id?{...ME,bio:myProfile.bio}:USERS[uid]
-    return u?`<div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:var(--radius-lg);transition:.15s" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
-      <div class="av-wrap"><div class="av" style="width:36px;height:36px;font-size:13px">${u.initials||'?'}</div><div class="status-dot ${u.status||'offline'}"></div></div>
-      <div><div style="font-weight:600;font-size:13.5px">${u.name}${uid===myProfile.id?' (You)':''}</div><div style="font-size:12px;color:var(--text-muted)">${u.bio||''}</div></div>
-    </div>`:''
+  const conv = CONVERSATIONS.find(c => c.id === convId)
+  if (!conv) return
+
+  // Load admin info from DB
+  const { data: memberRoles } = await window._db
+    .from('conversation_members')
+    .select('user_id, role')
+    .eq('conversation_id', convId)
+    .is('left_at', null)
+
+  const rolesMap = {}
+  if (memberRoles) memberRoles.forEach(r => { rolesMap[r.user_id] = r.role })
+  const amAdmin = rolesMap[myProfile.id] === 'admin'
+
+  const overlay = document.createElement('div')
+  overlay.className = 'modal-overlay'
+  overlay.onclick = e => { if (e.target === overlay) closeAllModals() }
+
+  const membersHtml = conv.members.map(uid => {
+    const u = uid === myProfile.id ? { ...ME, bio: myProfile.bio, avatar_url: myProfile.avatar_url } : USERS[uid]
+    if (!u) return ''
+    const isAdmin = rolesMap[uid] === 'admin'
+    const isSelf = uid === myProfile.id
+    return `<div class="member-row" style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:var(--radius-lg);transition:.15s;cursor:pointer" onclick="showUserProfile('${uid}')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'">
+      <div class="av-wrap">
+        <div class="av" style="width:36px;height:36px;font-size:13px;overflow:hidden">
+          ${u.avatar_url ? `<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : (u.initials || '?')}
+        </div>
+        <div class="status-dot ${u.status || 'offline'}"></div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:13.5px;display:flex;align-items:center;gap:4px">
+          ${u.name}${isSelf ? ' <span style="font-size:10px;color:var(--text-muted)">(You)</span>' : ''}
+          ${isAdmin ? `<span class="admin-badge">⭐ Admin</span>` : ''}
+        </div>
+        <div style="font-size:12px;color:var(--text-muted)">${u.bio || '@' + (u.username || '')}</div>
+      </div>
+      ${amAdmin && !isSelf ? `
+      <div class="member-row-actions" onclick="event.stopPropagation()">
+        ${!isAdmin ? `<button class="icon-btn" style="width:28px;height:28px;font-size:12px" title="Make admin" onclick="promoteToAdmin('${convId}','${uid}')">⭐</button>` : ''}
+        <button class="icon-btn" style="width:28px;height:28px;font-size:12px;color:#ef4444" title="Remove from group" onclick="removeMember('${convId}','${uid}','${u.name}')">✕</button>
+      </div>` : ''}
+    </div>`
   }).join('')
-  overlay.innerHTML=`<div class="modal pop-in" onclick="event.stopPropagation()">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <h3 style="margin:0">👥 Members (${conv.members.length})</h3><button onclick="closeAllModals()" class="icon-btn">✕</button>
+
+  overlay.innerHTML = `<div class="modal pop-in" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h3 style="margin:0">👥 Members (${conv.members.length})</h3>
+      <button onclick="closeAllModals()" class="icon-btn">✕</button>
     </div>
-    ${members}
-    ${conv.type==='group'?`<button class="add-member-btn" onclick="closeAllModals();showAddMemberModal('${convId}')">➕ Add Member</button>`:''}
+    ${amAdmin ? `<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Tap a member to view profile · Hover to see admin actions</div>` : `<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Tap a member to view their profile</div>`}
+    <div style="max-height:52vh;overflow-y:auto">${membersHtml}</div>
+    <div style="border-top:1px solid var(--border-subtle);margin-top:12px;padding-top:12px;display:flex;flex-direction:column;gap:8px">
+      ${conv.type === 'group' && amAdmin ? `
+        <button class="btn btn-ghost" style="width:100%;text-align:left;padding:10px 14px" onclick="closeAllModals();showRenameGroupModal('${convId}')">✏️ Rename Group</button>
+        <button class="btn btn-ghost" style="width:100%;text-align:left;padding:10px 14px" onclick="closeAllModals();showAddMemberModal('${convId}')">➕ Add Member</button>
+      ` : ''}
+      ${conv.type === 'group' ? `<button class="btn btn-ghost" style="width:100%;text-align:left;padding:10px 14px;color:#ef4444" onclick="confirmLeaveGroup('${convId}')">🚪 Leave Group</button>` : ''}
+    </div>
   </div>`
   document.body.appendChild(overlay)
+}
+
+// ── Rename group ─────────────────────────────────────────────────
+function showRenameGroupModal(convId) {
+  closeAllModals()
+  const conv = CONVERSATIONS.find(c => c.id === convId)
+  if (!conv) return
+  const overlay = document.createElement('div')
+  overlay.className = 'modal-overlay'
+  overlay.onclick = e => { if (e.target === overlay) closeAllModals() }
+  overlay.innerHTML = `<div class="modal pop-in" style="max-width:320px" onclick="event.stopPropagation()">
+    <h3 style="margin-bottom:16px">✏️ Rename Group</h3>
+    <div class="form-field">
+      <label class="form-label">Group Name</label>
+      <input class="form-input" id="rename-group-input" value="${conv.name.replace(/"/g,'&quot;')}" placeholder="Group name"/>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="closeAllModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="doRenameGroup('${convId}')">Save</button>
+    </div>
+  </div>`
+  document.body.appendChild(overlay)
+  setTimeout(() => document.getElementById('rename-group-input')?.focus(), 50)
+}
+
+async function doRenameGroup(convId) {
+  const newName = document.getElementById('rename-group-input')?.value.trim()
+  if (!newName) { toast('Name cannot be empty', 'error'); return }
+  const { error } = await window._db.from('conversations').update({ name: newName }).eq('id', convId)
+  if (error) { toast('Could not rename: ' + error.message, 'error'); return }
+  const conv = CONVERSATIONS.find(c => c.id === convId)
+  if (conv) {
+    conv.name = newName
+    renderConversations()
+    // Update chat header if this conv is open
+    if (state.activeConvId === convId) {
+      const h2 = document.querySelector('.chat-header h2')
+      if (h2) h2.textContent = newName
+    }
+  }
+  closeAllModals()
+  toast(`✅ Group renamed to "${newName}"`, 'success')
+}
+
+// ── Promote to admin ─────────────────────────────────────────────
+async function promoteToAdmin(convId, userId) {
+  const u = USERS[userId]
+  if (!confirm(`Make ${u?.name || 'this person'} a group admin?`)) return
+  const { error } = await window._db.from('conversation_members')
+    .update({ role: 'admin' })
+    .eq('conversation_id', convId)
+    .eq('user_id', userId)
+  if (error) { toast('Could not promote: ' + error.message, 'error'); return }
+  toast(`⭐ ${u?.name || 'User'} is now an admin`, 'success')
+  closeAllModals()
+  showMembersPanel(convId)
+}
+
+// ── Remove member ────────────────────────────────────────────────
+async function removeMember(convId, userId, userName) {
+  const overlay = document.createElement('div')
+  overlay.className = 'modal-overlay'
+  overlay.onclick = e => { if (e.target === overlay) closeAllModals() }
+  overlay.innerHTML = `<div class="modal pop-in" style="max-width:300px;text-align:center" onclick="event.stopPropagation()">
+    <div style="font-size:36px;margin-bottom:12px">⚠️</div>
+    <h3 style="margin-bottom:8px">Remove ${userName}?</h3>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">They will be removed from this group and can only rejoin if re-added.</p>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="closeAllModals();showMembersPanel('${convId}')">Cancel</button>
+      <button class="btn btn-primary" style="background:#ef4444;border-color:#ef4444" onclick="doRemoveMember('${convId}','${userId}')">Remove</button>
+    </div>
+  </div>`
+  document.body.appendChild(overlay)
+}
+
+async function doRemoveMember(convId, userId) {
+  const { error } = await window._db.from('conversation_members')
+    .update({ left_at: new Date().toISOString() })
+    .eq('conversation_id', convId)
+    .eq('user_id', userId)
+  if (error) { toast('Could not remove: ' + error.message, 'error'); return }
+  const conv = CONVERSATIONS.find(c => c.id === convId)
+  if (conv) {
+    conv.members = conv.members.filter(id => id !== userId)
+    if (state.activeConvId === convId) openConversation(convId)
+    renderConversations()
+  }
+  closeAllModals()
+  toast(`✅ ${USERS[userId]?.name || 'User'} removed from group`, 'success')
+}
+
+// ── Leave group ──────────────────────────────────────────────────
+function confirmLeaveGroup(convId) {
+  const conv = CONVERSATIONS.find(c => c.id === convId)
+  const overlay = document.createElement('div')
+  overlay.className = 'modal-overlay'
+  overlay.onclick = e => { if (e.target === overlay) closeAllModals() }
+  overlay.innerHTML = `<div class="modal pop-in" style="max-width:300px;text-align:center" onclick="event.stopPropagation()">
+    <div style="font-size:36px;margin-bottom:12px">🚪</div>
+    <h3 style="margin-bottom:8px">Leave "${conv?.name}"?</h3>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">You'll stop receiving messages from this group.</p>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="closeAllModals()">Cancel</button>
+      <button class="btn btn-primary" style="background:#ef4444;border-color:#ef4444" onclick="doLeaveGroup('${convId}')">Leave</button>
+    </div>
+  </div>`
+  document.body.appendChild(overlay)
+}
+
+async function doLeaveGroup(convId) {
+  const { error } = await window._db.from('conversation_members')
+    .update({ left_at: new Date().toISOString() })
+    .eq('conversation_id', convId)
+    .eq('user_id', myProfile.id)
+  if (error) { toast('Could not leave: ' + error.message, 'error'); return }
+  const idx = CONVERSATIONS.findIndex(c => c.id === convId)
+  if (idx >= 0) CONVERSATIONS.splice(idx, 1)
+  if (state.activeConvId === convId) {
+    state.activeConvId = null
+    const ca = document.getElementById('chat-area')
+    if (ca) ca.innerHTML = `<div class="chat-bg-pattern"></div><div class="empty-state"><div class="es-art">🌿</div><h3>Welcome to Leafy</h3><p>Select a conversation to start chatting</p></div>`
+    if (state.isMobile) closeSidebar()
+  }
+  renderConversations()
+  closeAllModals()
+  toast('You left the group', 'info')
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -3624,16 +4026,21 @@ function playNotifSound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)()
     const now = ctx.currentTime
-    // Two-note chime: C5 then G5
-    ;[523.25, 783.99].forEach((freq, i) => {
-      const osc = ctx.createOscillator(), gain = ctx.createGain()
-      osc.connect(gain); gain.connect(ctx.destination)
-      osc.type = 'sine'; osc.frequency.value = freq
-      const t = now + i * 0.12
+    // Three-note ascending arpeggio: E5 → G#5 → B5 (E major chord)
+    // With a soft sine + triangle blend for warmth
+    const notes = [659.25, 830.61, 987.77]
+    notes.forEach((freq, i) => {
+      const osc1 = ctx.createOscillator(), osc2 = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc1.connect(gain); osc2.connect(gain); gain.connect(ctx.destination)
+      osc1.type = 'sine';     osc1.frequency.value = freq
+      osc2.type = 'triangle'; osc2.frequency.value = freq
+      const t = now + i * 0.10
       gain.gain.setValueAtTime(0, t)
-      gain.gain.linearRampToValueAtTime(0.18, t + 0.015)
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45)
-      osc.start(t); osc.stop(t + 0.5)
+      gain.gain.linearRampToValueAtTime(i === 0 ? 0.14 : i === 1 ? 0.11 : 0.16, t + 0.012)
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.55)
+      osc1.start(t); osc1.stop(t + 0.6)
+      osc2.start(t); osc2.stop(t + 0.6)
     })
   } catch(e) {}
 }
@@ -3985,6 +4392,73 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('beforeunload', () => setOnlineStatus(false))
 
 // ══════════════════════════════════════════════════════════════════
+// CONTACT SHARING
+// ══════════════════════════════════════════════════════════════════
+function showShareContactModal(convId) {
+  closeAllModals()
+  const contacts = Object.values(USERS)
+  if (contacts.length === 0) { toast('No contacts to share', 'info'); return }
+  const overlay = document.createElement('div')
+  overlay.className = 'modal-overlay'
+  overlay.onclick = e => { if (e.target === overlay) closeAllModals() }
+  overlay.innerHTML = `<div class="modal pop-in" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <h3 style="margin:0">👤 Share Contact</h3>
+      <button onclick="closeAllModals()" class="icon-btn">✕</button>
+    </div>
+    <input class="form-input" placeholder="Search contacts…" oninput="filterShareContacts(this.value)" style="margin-bottom:12px;width:100%"/>
+    <div id="share-contact-list" style="max-height:320px;overflow-y:auto">
+      ${contacts.map(u => `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:var(--radius-lg);cursor:pointer;transition:.15s" onclick="sendContactCard('${convId}','${u.id}');closeAllModals()" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='transparent'" data-name="${u.name.toLowerCase()} ${u.username.toLowerCase()}">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent-dim),var(--accent));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">
+            ${u.avatar_url ? `<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover"/>` : u.initials}
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:13.5px">${u.name}</div>
+            <div style="font-size:12px;color:var(--text-muted)">@${u.username}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+  </div>`
+  document.body.appendChild(overlay)
+}
+
+function filterShareContacts(q) {
+  const list = document.getElementById('share-contact-list')
+  if (!list) return
+  list.querySelectorAll('[data-name]').forEach(el => {
+    el.style.display = el.getAttribute('data-name').includes(q.toLowerCase()) ? '' : 'none'
+  })
+}
+
+async function sendContactCard(convId, contactUserId) {
+  const u = USERS[contactUserId]
+  if (!u) return
+
+  const { data, error } = await window._db.from('messages').insert({
+    conversation_id: convId,
+    sender_id:       myProfile.id,
+    text:            u.name,         // display name as text
+    type:            'contact',      // custom type
+    file_name:       contactUserId,  // reuse file_name to store userId
+  }).select().single()
+
+  if (error) { toast('Could not share contact', 'error'); return }
+
+  await window._db.from('conversations').update({ updated_at: new Date().toISOString() }).eq('id', convId)
+
+  const conv = CONVERSATIONS.find(c => c.id === convId)
+  if (conv && data) {
+    conv.messages.push(mapMessage({ ...data, message_reactions: [], message_reads: [] }))
+    conv.preview = `👤 ${u.name}`
+    conv.time    = formatMsgTime(data.created_at)
+    renderMessages(convId)
+    renderConversations()
+  }
+  toast(`👤 Shared ${u.name}'s contact`, 'success')
+}
+
+// ══════════════════════════════════════════════════════════════════
 // FORWARD MESSAGE
 // ══════════════════════════════════════════════════════════════════
 function showForwardModal(convId, msgId) {
@@ -4119,6 +4593,208 @@ async function recordStatusView(storyId, userId) {
     { onConflict: 'status_id,viewer_id', ignoreDuplicates: true }
   )
 }
+
+// ══════════════════════════════════════════════════════════════════
+// SIDEBAR WALLPAPER
+// ══════════════════════════════════════════════════════════════════
+function setSidebarWallpaper(id) {
+  state.sidebarWallpaper = id
+  persistSettings()
+  applySidebarWallpaper(id)
+  toast('Sidebar wallpaper updated', 'success')
+}
+
+function applySidebarWallpaper(id) {
+  const canvas = document.getElementById('sidebar-wallpaper-canvas')
+  if (!canvas) return
+  if (id === 'none') { canvas.style.display = 'none'; return }
+  const sidebar = document.getElementById('sidebar')
+  canvas.width  = sidebar?.offsetWidth  || 300
+  canvas.height = sidebar?.offsetHeight || 800
+  canvas.style.display = 'block'
+  const ctx = canvas.getContext('2d')
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  const w = canvas.width, h = canvas.height
+  const color = 'rgba(34,197,94,0.85)'
+
+  if (id === 'dots') {
+    ctx.fillStyle = color
+    for (let x = 16; x < w; x += 22)
+      for (let y = 16; y < h; y += 22) {
+        ctx.beginPath(); ctx.arc(x, y, 1.5, 0, Math.PI * 2); ctx.fill()
+      }
+  } else if (id === 'leaves') {
+    ctx.font = '15px serif'; ctx.fillStyle = 'rgba(34,197,94,0.5)'
+    const chars = ['✿', '❀', '❁', '✾', '⚘']
+    let i = 0
+    for (let x = 12; x < w; x += 46)
+      for (let y = 12; y < h; y += 46)
+        ctx.fillText(chars[i++ % chars.length], x + (y % 22), y)
+  } else if (id === 'geo') {
+    ctx.strokeStyle = color; ctx.lineWidth = 0.7
+    for (let x = 0; x < w; x += 36)
+      for (let y = 0; y < h; y += 36) {
+        ctx.beginPath()
+        ctx.moveTo(x + 18, y); ctx.lineTo(x + 36, y + 18)
+        ctx.lineTo(x + 18, y + 36); ctx.lineTo(x, y + 18); ctx.closePath()
+        ctx.stroke()
+      }
+  } else if (id === 'waves') {
+    ctx.strokeStyle = color; ctx.lineWidth = 1.1
+    for (let y = 20; y < h; y += 30) {
+      ctx.beginPath()
+      for (let x = 0; x < w; x += 2) {
+        const wy = y + Math.sin((x / w) * Math.PI * 4) * 5
+        x === 0 ? ctx.moveTo(x, wy) : ctx.lineTo(x, wy)
+      }
+      ctx.stroke()
+    }
+  } else if (id === 'grid') {
+    ctx.strokeStyle = color; ctx.lineWidth = 0.5
+    for (let x = 0; x < w; x += 28) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke()
+    }
+    for (let y = 0; y < h; y += 28) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke()
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// USER PROFILE CARD MODAL
+// ══════════════════════════════════════════════════════════════════
+function showUserProfile(userId) {
+  closeAllModals()
+  const u = userId === myProfile.id
+    ? { ...ME, bio: myProfile.bio, avatar_url: myProfile.avatar_url, status: 'online', last_seen: null, username: myProfile.username }
+    : USERS[userId]
+  if (!u) { toast('User not found', 'error'); return }
+  const isSelf = userId === myProfile.id
+  const isOnline = u.status === 'online'
+  const mutualGroups = CONVERSATIONS.filter(c => c.type === 'group' && c.members?.includes(userId) && c.members?.includes(myProfile.id))
+  const overlay = document.createElement('div')
+  overlay.className = 'modal-overlay'
+  overlay.onclick = e => { if (e.target === overlay) closeAllModals() }
+  overlay.innerHTML = `<div class="modal pop-in" style="padding:0;overflow:hidden;max-width:340px" onclick="event.stopPropagation()">
+    <div style="position:relative">
+      <div style="height:72px;background:linear-gradient(135deg,var(--accent-dim),var(--accent))"></div>
+      <button onclick="closeAllModals()" class="icon-btn" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.35);color:#fff">✕</button>
+      <div style="display:flex;flex-direction:column;align-items:center;padding:0 20px 20px;margin-top:-44px;text-align:center">
+        <div style="width:82px;height:82px;border-radius:50%;border:3px solid var(--accent);box-shadow:0 0 0 6px var(--accent-glow);overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:32px;background:linear-gradient(135deg,var(--accent-dim),var(--accent));color:#fff;margin-bottom:12px;flex-shrink:0">
+          ${u.avatar_url ? `<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover"/>` : (u.initials || '?')}
+        </div>
+        <div style="font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:2px">${u.name || 'Unknown'}</div>
+        <div style="font-size:13px;color:var(--accent);font-weight:600;margin-bottom:${u.bio ? '8px' : '10px'}">@${u.username || 'unknown'}</div>
+        ${u.bio ? `<div style="font-size:13px;color:var(--text-secondary);max-width:260px;line-height:1.5;margin-bottom:10px">${u.bio}</div>` : ''}
+        <div style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);background:var(--bg-raised);padding:4px 10px;border-radius:99px;border:1px solid var(--border-subtle)">
+          <div style="width:7px;height:7px;border-radius:50%;background:${isOnline ? '#22c55e' : 'var(--text-muted)'};${isOnline ? 'box-shadow:0 0 6px rgba(34,197,94,.5)' : ''}"></div>
+          <span>${isOnline ? 'Online now' : formatLastSeen(u.last_seen)}</span>
+        </div>
+      </div>
+    </div>
+    ${mutualGroups.length > 0 ? `
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 18px;border-top:1px solid var(--border-subtle)">
+      <span style="font-size:16px;width:28px;text-align:center;flex-shrink:0">👥</span>
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;font-weight:700;margin-bottom:2px">Mutual Groups</div>
+        <div style="font-size:13.5px;color:var(--text-primary);font-weight:500">${mutualGroups.map(g => g.name).join(', ')}</div>
+      </div>
+    </div>` : ''}
+    <div style="padding:14px 16px;display:flex;gap:8px;border-top:1px solid var(--border-subtle)">
+      ${!isSelf ? `<button class="btn btn-primary" style="flex:1" onclick="startDM('${userId}');closeAllModals()">💬 Message</button>` : ''}
+      ${isSelf ? `<button class="btn btn-ghost" style="flex:1" onclick="closeAllModals();showEditProfileModal()">✏️ Edit Profile</button>` : ''}
+    </div>
+  </div>`
+  document.body.appendChild(overlay)
+}
+
+// ══════════════════════════════════════════════════════════════════
+// LONG-PRESS CONTEXT MENU FOR MOBILE
+// ══════════════════════════════════════════════════════════════════
+let _lpTimer = null, _lpTriggered = false
+
+function initLongPress() {
+  // Long-press on conversation items → conv menu
+  document.getElementById('conversations-list')?.addEventListener('touchstart', e => {
+    const item = e.target.closest('.conv-item')
+    if (!item) return
+    // Extract convId from onclick="openConversation('xxx')"
+    const onclickStr = item.getAttribute('onclick') || ''
+    const m = onclickStr.match(/'([^']+)'/)
+    if (!m) return
+    const convId = m[1]
+    _lpTriggered = false
+    _lpTimer = setTimeout(() => {
+      _lpTriggered = true
+      if (navigator.vibrate) navigator.vibrate(40)
+      showConvMenu({ preventDefault: () => {} }, convId)
+    }, 500)
+  }, { passive: true })
+
+  document.getElementById('conversations-list')?.addEventListener('touchend', () => {
+    clearTimeout(_lpTimer)
+  })
+
+  // Long-press on message bubbles → message menu
+  document.body.addEventListener('touchstart', e => {
+    const bubble = e.target.closest('.message-bubble')
+    if (!bubble) return
+    const row = bubble.closest('.message-row')
+    if (!row) return
+    const msgId  = row.getAttribute('data-msg-id')
+    const convId = row.getAttribute('data-conv-id')
+    const isOwn  = row.classList.contains('own')
+    if (!msgId || !convId) return
+    _lpTriggered = false
+    _lpTimer = setTimeout(() => {
+      _lpTriggered = true
+      if (navigator.vibrate) navigator.vibrate(40)
+      showMsgMenu({ preventDefault: () => {} }, convId, msgId, isOwn ? 'true' : 'false')
+    }, 500)
+  }, { passive: true })
+
+  document.body.addEventListener('touchend', () => clearTimeout(_lpTimer))
+  document.body.addEventListener('touchmove', () => clearTimeout(_lpTimer), { passive: true })
+}
+
+// ── Wire avatar clicks in sidebar to show user profile ───────────
+document.addEventListener('click', e => {
+  const avWrap = e.target.closest('#conversations-list .av-wrap')
+  if (!avWrap) return
+  const item = avWrap.closest('.conv-item')
+  if (!item) return
+  e.stopPropagation()
+  const onclickStr = item.getAttribute('onclick') || ''
+  const m = onclickStr.match(/'([^']+)'/)
+  if (!m) return
+  const convId = m[1]
+  const conv = CONVERSATIONS.find(c => c.id === convId)
+  if (conv?.type === 'dm' && conv.otherId) showUserProfile(conv.otherId)
+})
+
+// ── Wire chat header avatar to show profile ─────────────────────
+document.addEventListener('click', e => {
+  const avWrap = e.target.closest('.chat-header .av-wrap')
+  if (!avWrap) return
+  const conv = CONVERSATIONS.find(c => c.id === state.activeConvId)
+  if (!conv) return
+  if (conv.type === 'dm' && conv.otherId) showUserProfile(conv.otherId)
+  else if (conv.type === 'group') showMembersPanel(conv.id)
+})
+
+// ── Wire sender avatar in messages to show profile ───────────────
+document.addEventListener('click', e => {
+  const avEl = e.target.closest('.msg-av .av')
+  if (!avEl) return
+  const row = avEl.closest('.message-row')
+  if (!row || row.classList.contains('own')) return
+  const convId = row.getAttribute('data-conv-id')
+  const msgId  = row.getAttribute('data-msg-id')
+  if (!convId || !msgId) return
+  const conv = CONVERSATIONS.find(c => c.id === convId)
+  const msg  = conv?.messages.find(m => m.id === msgId)
+  if (msg?.senderId) showUserProfile(msg.senderId)
+})
 
 // ── Visual viewport: keep input above keyboard on iOS ──
 if (window.visualViewport) {
