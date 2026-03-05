@@ -986,34 +986,7 @@ body{font-size:calc(14px * var(--font-size-scale))}
           <div class="login-btn-spinner" id="signin-spinner"></div>
         </button>
 
-        <div class="login-divider">or try a demo account</div>
 
-        <div class="login-demo-accounts">
-          <div class="demo-account" onclick="fillDemo('alex@leafy.app','demo123')">
-            <div class="demo-av">A</div>
-            <div class="demo-info">
-              <div class="demo-name">Alex Kamau</div>
-              <div class="demo-cred"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="640508011c24080105021d4a051414">[email&#160;protected]</a> · demo123</div>
-            </div>
-            <span class="demo-arrow">→</span>
-          </div>
-          <div class="demo-account" onclick="fillDemo('grace@leafy.app','demo123')">
-            <div class="demo-av">G</div>
-            <div class="demo-info">
-              <div class="demo-name">Grace Nakato</div>
-              <div class="demo-cred"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3b5c495a585e7b575e5a5d42155a4b4b">[email&#160;protected]</a> · demo123</div>
-            </div>
-            <span class="demo-arrow">→</span>
-          </div>
-          <div class="demo-account" onclick="fillDemo('brian@leafy.app','demo123')">
-            <div class="demo-av">B</div>
-            <div class="demo-info">
-              <div class="demo-name">Brian Otieno</div>
-              <div class="demo-cred"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="680a1a01090628040d090e1146091818">[email&#160;protected]</a> · demo123</div>
-            </div>
-            <span class="demo-arrow">→</span>
-          </div>
-        </div>
       </div>
 
       <!-- SIGN UP FORM -->
@@ -3188,8 +3161,16 @@ function closeChatMobile(){
   showBottomNav(); openSidebar()
   const fab=document.getElementById('fab');if(fab)fab.classList.remove('hidden')
 }
-function showBottomNav(){const bn=document.getElementById('bottom-nav');if(bn)bn.classList.remove('hidden')}
-function hideBottomNav(){const bn=document.getElementById('bottom-nav');if(bn)bn.classList.add('hidden')}
+function showBottomNav(){
+  const bn=document.getElementById('bottom-nav'); if(bn)bn.classList.remove('hidden')
+  const fab=document.getElementById('fab'); if(fab)fab.classList.remove('hidden')
+  const ma=document.getElementById('main-area-el'); if(ma)ma.classList.remove('chat-mode')
+}
+function hideBottomNav(){
+  const bn=document.getElementById('bottom-nav'); if(bn)bn.classList.add('hidden')
+  const fab=document.getElementById('fab'); if(fab)fab.classList.add('hidden')
+  const ma=document.getElementById('main-area-el'); if(ma)ma.classList.add('chat-mode')
+}
 function openMoreDrawer(){
   updateSidebarProfile()
   const d=document.getElementById('more-drawer'),b=document.getElementById('drawer-backdrop')
