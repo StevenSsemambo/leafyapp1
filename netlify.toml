@@ -1,0 +1,24 @@
+# Netlify configuration for Leafy PWA
+# Drop this file into the root of your GitHub repo
+
+# ── SPA routing: all paths serve index.html ──────────────────────
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# ── Service worker: must not be cached ───────────────────────────
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Service-Worker-Allowed = "/"
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# ── Security headers for all routes ──────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
