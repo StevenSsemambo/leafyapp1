@@ -85,8 +85,7 @@ body{height:100%;height:-webkit-fill-available;width:100%;overflow:hidden;font-f
 .send-btn{transition:transform .25s var(--t-spring),box-shadow .2s ease,background .2s ease,opacity .2s ease}
 .reaction-chip{transition:all .22s var(--t-spring)}
 .reaction-chip:hover{transform:scale(1.12)}
-.nav-tab{transition:color .2s ease,transform .2s var(--t-spring)}
-.nav-tab:active{transform:scale(0.88)}
+/* nav-tab transitions handled in main CSS block */
 .modal{animation:modalSlideUp 0.3s cubic-bezier(0.34,1.56,0.64,1) both}
 @keyframes modalSlideUp{from{opacity:0;transform:scale(0.9) translateY(20px)}to{opacity:1;transform:none}}
 @keyframes bubbleIn{from{opacity:0;transform:scale(0.85) translateY(8px)}to{opacity:1;transform:none}}
@@ -864,9 +863,15 @@ body{font-size:calc(14px * var(--font-size-scale))}
 .own-area{display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;padding:6px 8px;border-radius:var(--radius-md);transition:background .18s ease}.own-area:hover{background:var(--bg-hover)}
 .own-name{font-size:13.5px;font-weight:700;color:var(--text-primary);letter-spacing:-.1px}
 .own-status{font-size:11.5px;color:var(--text-muted);display:flex;align-items:center;gap:4px}.own-status::before{content:'';width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.6);flex-shrink:0}
-.icon-btn{width:36px;height:36px;border-radius:var(--radius-md);border:none;background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .18s ease,color .18s ease,transform .2s var(--t-spring);font-size:15px}
-.icon-btn:hover{background:var(--bg-hover);color:var(--text-secondary);transform:scale(1.08)}
-.icon-btn:active{transform:scale(0.93)}
+.icon-btn{
+  width:36px;height:36px;border-radius:10px;border:none;
+  background:transparent;color:var(--text-muted);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .18s ease,color .18s ease,transform .18s var(--t-spring),box-shadow .18s;
+  -webkit-tap-highlight-color:transparent;flex-shrink:0;
+}
+.icon-btn:hover{background:var(--bg-hover);color:var(--text-primary);transform:scale(1.06)}
+.icon-btn:active{transform:scale(0.9)}
 .icon-btn.active{background:var(--accent-glow);color:var(--accent);box-shadow:0 0 0 1px var(--border-accent)}
 
 /* MAIN AREA */
@@ -985,8 +990,17 @@ body{font-size:calc(14px * var(--font-size-scale))}
 .input-wrap:focus-within{border-color:var(--border-accent);box-shadow:0 0 0 3px var(--accent-glow)}
 .msg-input{flex:1;background:transparent;border:none;outline:none;color:var(--text-primary);font-family:var(--font-body);font-size:var(--font-msg);line-height:1.5;resize:none;max-height:120px;padding:2px 0;font-size:16px} /* 16px prevents iOS zoom */
 .msg-input::placeholder{color:var(--text-placeholder)}
-.send-btn{width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--accent),var(--accent-dim));color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--t-spring);flex-shrink:0;box-shadow:var(--shadow-glow);font-size:16px}
-.send-btn:hover{transform:scale(1.08);box-shadow:var(--shadow-glow-strong)}
+.send-btn{
+  width:42px;height:42px;border-radius:13px;border:none;
+  background:linear-gradient(145deg,var(--accent-bright),var(--accent-dim));
+  color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:transform .25s var(--t-spring),box-shadow .2s ease,border-radius .2s;
+  flex-shrink:0;
+  box-shadow:0 4px 16px rgba(34,197,94,.45),inset 0 1px 0 rgba(255,255,255,.2);
+  -webkit-tap-highlight-color:transparent;
+}
+.send-btn:hover{transform:scale(1.07) translateY(-1px);box-shadow:0 6px 20px rgba(34,197,94,.55),inset 0 1px 0 rgba(255,255,255,.2);border-radius:15px}
+.send-btn:active{transform:scale(0.9)}
 .send-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
 
 /* EMPTY STATE */
@@ -1062,10 +1076,18 @@ body{font-size:calc(14px * var(--font-size-scale))}
 .notif-time{font-size:10.5px;color:var(--text-muted);margin-top:3px}
 
 /* BOTTOM NAV — always hidden on desktop, shown on mobile */
+/* ═══════════════════════════════════════════════════════════════
+   SVG ICON BASE — applied to all inline SVGs via icon()
+   ═══════════════════════════════════════════════════════════════ */
+.si{display:block;flex-shrink:0;pointer-events:none}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOTTOM NAVIGATION — pill indicator design
+   ═══════════════════════════════════════════════════════════════ */
 .bottom-nav{
   display:none;
   position:fixed;bottom:0;left:0;right:0;
-  height:calc(60px + env(safe-area-inset-bottom,0px));
+  height:calc(62px + env(safe-area-inset-bottom,0px));
   padding-bottom:env(safe-area-inset-bottom,0px);
   background:var(--glass-bg);
   backdrop-filter:var(--glass-blur);
@@ -1074,57 +1096,90 @@ body{font-size:calc(14px * var(--font-size-scale))}
   z-index:120;
   align-items:center;
   justify-content:space-around;
-  padding-left:4px;padding-right:4px;
+  padding:0 6px;
   transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s ease;
-  transform:translateY(0);
-  opacity:1;
+  position:fixed;
 }
 .bottom-nav.hidden{transform:translateY(100%) !important;opacity:0 !important;pointer-events:none !important}
-.nav-tab{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:2px;cursor:pointer;padding:6px 4px;
-  border-radius:var(--radius-md);border:none;
-  background:transparent;color:var(--text-muted);
-  transition:color .2s,transform .15s;
-  position:relative;
-  -webkit-tap-highlight-color:transparent;
-}
-.nav-tab:active{transform:scale(0.88)}
-.nav-tab.active{color:var(--accent)}
-.nav-tab.active .nav-icon{transform:scale(1.15)}
-.nav-icon{font-size:20px;transition:transform .2s var(--t-spring);display:block}
-.nav-tab-label{font-size:9.5px;font-weight:600;letter-spacing:.2px}
-.nav-badge{
-  position:absolute;top:4px;right:calc(50% - 16px);
-  background:#ef4444;color:#fff;
-  font-size:9px;font-weight:700;
-  padding:1px 4px;border-radius:99px;
-  min-width:16px;text-align:center;
-  border:1.5px solid var(--bg-deep);
+
+/* sliding pill */
+.nav-pill{
+  position:absolute;
+  top:8px;
+  height:32px;
+  background:rgba(34,197,94,.14);
+  border-radius:10px;
+  border:1px solid rgba(34,197,94,.22);
+  pointer-events:none;
+  transition:transform .32s cubic-bezier(.34,1.3,.64,1), width .32s cubic-bezier(.34,1.3,.64,1);
+  z-index:0;
 }
 
-/* FLOATING ACTION BUTTON */
+.nav-tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;padding:7px 4px 5px;
+  border-radius:12px;border:none;
+  background:transparent;color:var(--text-muted);
+  transition:color .22s ease,transform .16s var(--t-spring);
+  position:relative;z-index:1;
+  -webkit-tap-highlight-color:transparent;
+  min-width:0;
+}
+.nav-tab:active{transform:scale(0.86)}
+.nav-tab.active{color:var(--accent)}
+.nav-tab.active .nav-icon{transform:scale(1.12)}
+.nav-icon{
+  display:flex;align-items:center;justify-content:center;
+  width:22px;height:22px;
+  transition:transform .22s var(--t-spring);
+}
+.nav-tab-label{
+  font-size:9px;font-weight:700;letter-spacing:.3px;
+  text-transform:uppercase;line-height:1;
+  transition:color .22s ease;
+}
+.nav-tab.active .nav-tab-label{color:var(--accent)}
+.nav-badge{
+  position:absolute;top:5px;right:calc(50% - 18px);
+  background:#ef4444;color:#fff;
+  font-size:9px;font-weight:800;
+  padding:1px 4px;border-radius:99px;
+  min-width:16px;text-align:center;line-height:1.4;
+  border:1.5px solid var(--bg-deep);
+  animation:badgePop .3s var(--t-spring) both;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FLOATING ACTION BUTTON — redesigned
+   ═══════════════════════════════════════════════════════════════ */
 .fab{
   display:none;
   position:fixed;
-  bottom:calc(72px + env(safe-area-inset-bottom,0px));
-  right:18px;
-  width:52px;height:52px;
-  border-radius:50%;
-  background:linear-gradient(135deg,var(--accent),var(--accent-dim));
+  bottom:calc(76px + env(safe-area-inset-bottom,0px));
+  right:16px;
+  width:54px;height:54px;
+  border-radius:16px;
+  background:linear-gradient(145deg,var(--accent-bright),var(--accent-dim));
   border:none;
   color:#fff;
-  font-size:20px;
   cursor:pointer;
-  box-shadow:0 4px 20px rgba(34,197,94,0.45),0 2px 8px rgba(0,0,0,.4);
+  box-shadow:
+    0 6px 24px rgba(34,197,94,0.5),
+    0 2px 8px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.25);
   z-index:115;
   align-items:center;justify-content:center;
-  transition:transform .28s cubic-bezier(.34,1.56,.64,1),box-shadow .2s,opacity .25s ease;
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1),box-shadow .2s,opacity .25s,border-radius .2s;
   -webkit-tap-highlight-color:transparent;
 }
-.fab:active{transform:scale(0.88) !important}
-.fab.hidden{opacity:0 !important;transform:translateY(16px) scale(0.8) !important;pointer-events:none !important}
-.fab-icon{font-size:20px;line-height:1}
+.fab:hover{
+  transform:scale(1.06) translateY(-2px);
+  box-shadow:0 10px 32px rgba(34,197,94,0.55),0 3px 10px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.25);
+  border-radius:18px;
+}
+.fab:active{transform:scale(0.9) !important;box-shadow:0 3px 12px rgba(34,197,94,0.4) !important}
+.fab.hidden{opacity:0 !important;transform:translateY(20px) scale(0.75) !important;pointer-events:none !important}
+.fab-icon{display:flex;align-items:center;justify-content:center;line-height:1}
 
 /* MORE DRAWER BACKDROP */
 .drawer-backdrop{
@@ -1397,19 +1452,23 @@ body{font-size:calc(14px * var(--font-size-scale))}
   <div class="sidebar" id="sidebar">
     <canvas id="sidebar-wallpaper-canvas" class="sidebar-wallpaper" style="display:none"></canvas>
     <div class="sidebar-header">
-      <div class="logo"><div class="logo-icon">🌿</div>LEAFY</div>
-      <div style="display:flex;gap:4px;align-items:center">
-        <button class="icon-btn" title="Search" onclick="showSearchModal()">🔍</button>
+      <div class="logo">
+        <div class="logo-icon" id="logo-icon-el"></div>
+        <span>Leafy</span>
+      </div>
+      <div style="display:flex;gap:2px;align-items:center">
+        <button class="icon-btn" title="Search" onclick="showSearchModal()" id="btn-search-sidebar"></button>
         <button class="icon-btn" title="Notifications" onclick="showNotifsModal()" style="position:relative" id="notif-btn">
-          🔔<span class="notif-count-badge" id="notif-badge"></span>
+          <span id="notif-bell-icon"></span>
+          <span class="notif-count-badge" id="notif-badge"></span>
         </button>
-        <button class="icon-btn more-btn" title="More" onclick="openMoreDrawer()" style="font-size:18px;letter-spacing:1px;font-weight:700">⋮</button>
+        <button class="icon-btn more-btn" title="More" onclick="openMoreDrawer()" id="btn-more-sidebar"></button>
       </div>
     </div>
 
     <div class="sidebar-search">
       <div class="search-wrap">
-        <span class="search-icon-pos">🔍</span>
+        <span class="search-icon-pos" id="search-icon-pos-el"></span>
         <input class="search-input" type="text" placeholder="Search conversations..." id="conv-search" oninput="filterConvs(this.value)"/>
       </div>
     </div>
@@ -1431,7 +1490,7 @@ body{font-size:calc(14px * var(--font-size-scale))}
         <div class="own-name">Alex Kamau</div>
         <div class="own-status">● Online</div>
       </div>
-      <button class="icon-btn" onclick="showSettingsModal()">⚙️</button>
+      <button class="icon-btn" onclick="showSettingsModal()" id="btn-settings-footer"></button>
     </div>
   </div>
 
@@ -1455,32 +1514,35 @@ body{font-size:calc(14px * var(--font-size-scale))}
 
 <!-- BOTTOM NAV (5 tabs) -->
 <div class="bottom-nav" id="bottom-nav">
-  <button class="nav-tab active" id="nav-chats" onclick="mobileTab('chats')">
-    <span class="nav-icon">💬</span>
+  <!-- Sliding pill indicator -->
+  <div class="nav-pill" id="nav-pill"></div>
+
+  <button class="nav-tab active" id="nav-chats" onclick="mobileTab('chats')" data-tab-index="0">
+    <span class="nav-icon" id="nav-icon-chats"></span>
     <span class="nav-tab-label">Chats</span>
     <span class="nav-badge" id="nav-badge-chats" style="display:none"></span>
   </button>
-  <button class="nav-tab" id="nav-groups" onclick="mobileTab('groups')">
-    <span class="nav-icon">👥</span>
+  <button class="nav-tab" id="nav-groups" onclick="mobileTab('groups')" data-tab-index="1">
+    <span class="nav-icon" id="nav-icon-groups"></span>
     <span class="nav-tab-label">Groups</span>
   </button>
-  <button class="nav-tab" id="nav-status" onclick="mobileTab('status')">
-    <span class="nav-icon">🟢</span>
+  <button class="nav-tab" id="nav-status" onclick="mobileTab('status')" data-tab-index="2">
+    <span class="nav-icon" id="nav-icon-status"></span>
     <span class="nav-tab-label">Status</span>
   </button>
-  <button class="nav-tab" id="nav-calls" onclick="mobileTab('calls')">
-    <span class="nav-icon">📞</span>
+  <button class="nav-tab" id="nav-calls" onclick="mobileTab('calls')" data-tab-index="3">
+    <span class="nav-icon" id="nav-icon-calls"></span>
     <span class="nav-tab-label">Calls</span>
   </button>
-  <button class="nav-tab" id="nav-settings" onclick="mobileTab('settings')">
-    <span class="nav-icon">⚙️</span>
+  <button class="nav-tab" id="nav-settings" onclick="mobileTab('settings')" data-tab-index="4">
+    <span class="nav-icon" id="nav-icon-settings"></span>
     <span class="nav-tab-label">Settings</span>
   </button>
 </div>
 
 <!-- FLOATING ACTION BUTTON -->
 <button class="fab" id="fab" onclick="showNewChatModal()" title="New Chat">
-  <span class="fab-icon">✏️</span>
+  <span class="fab-icon" id="fab-icon-el"></span>
 </button>
 
 <!-- MORE DRAWER BACKDROP -->
@@ -1598,6 +1660,42 @@ body{font-size:calc(14px * var(--font-size-scale))}
 </script>
 
 <script>
+
+/* ═══════════════════════════════════════════════════════════════
+   LEAFY SVG ICON SYSTEM
+   ═══════════════════════════════════════════════════════════════ */
+const ICONS = {
+  chats:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  chatsFill:  `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  groups:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  groupsFill: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>`,
+  status:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>`,
+  statusFill: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>`,
+  calls:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.44 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.27-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,
+  callsFill:  `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>`,
+  settings:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+  settingsFill:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>`,
+  search:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+  bell:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
+  bellFill:   `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>`,
+  more:       `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>`,
+  compose:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`,
+  back:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>`,
+  gallery:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
+  palette:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>`,
+  members:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  close:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  up:         `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>`,
+  down:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`,
+  emoji:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,
+  edit:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  leaf:       `<svg viewBox="0 0 64 64" fill="none"><path d="M32 6 C32 6 10 18 10 36 C10 48 20 58 32 58 C32 58 32 38 48 22 C40 34 32 58 32 58 C44 58 54 48 54 36 C54 20 32 6 32 6Z" fill="currentColor" opacity="0.95"/><path d="M32 58 C32 58 28 40 18 30" stroke="rgba(255,255,255,0.6)" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg>`,
+}
+function icon(name, size=20, cls='') {
+  const svg = ICONS[name]; if (!svg) return ''
+  return svg.replace('<svg ', `<svg width="${size}" height="${size}" class="si ${cls}" `)
+}
+
 // ══════════════════════════════════════════════════════════════════
 // LEAFY — SUPABASE-WIRED APP
 // All data comes from / goes to Supabase. No hardcoded mock data.
@@ -1706,10 +1804,6 @@ async function bootApp() {
   await loadMyProfile(currentUser.id)
   await loadSettings()
   setOnlineStatus(true).catch(()=>{})
-  // Register SW and re-subscribe silently if permission already granted
-  await bootPush()
-  // Request push permission (shows browser prompt if not yet decided)
-  await initPushNotifications()
   await loadContacts()
   await loadConversations()
   await loadNotifications()
@@ -3148,7 +3242,7 @@ async function openConversation(id) {
     <div class="chat-bg-pattern"></div>
     <div class="chat-header">
       <div class="chat-header-left">
-        <button class="icon-btn back-btn-mobile" onclick="closeChatMobile()">◀</button>
+        <button class="icon-btn back-btn-mobile" id="btn-back-mobile" onclick="closeChatMobile()"></button>
         <div class="av-wrap">
           <div class="av" style="${conv.type==='group'?'background:linear-gradient(135deg,var(--accent-dim),var(--accent));color:#fff;overflow:hidden':'overflow:hidden'}">
             ${user?.avatar_url ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : (user ? user.initials : (conv.name[1]||conv.name[0]||'G'))}
@@ -3161,18 +3255,18 @@ async function openConversation(id) {
         </div>
       </div>
       <div class="chat-header-actions">
-        <button class="icon-btn" title="Search" onclick="toggleChatSearch('${id}')">🔍</button>
-        <button class="icon-btn" title="Media Gallery" onclick="showMediaGallery('${id}')">🖼</button>
-        <button class="icon-btn" title="Mood" onclick="showMoodModal()">🎨</button>
-        ${conv.type==='group'?`<button class="icon-btn" onclick="showMembersPanel('${id}')" style="font-size:13px">👥</button>`:''}
+        <button class="icon-btn" title="Search" onclick="toggleChatSearch('${id}')" id="btn-chat-search-${id}"></button>
+        <button class="icon-btn" title="Media Gallery" onclick="showMediaGallery('${id}')" id="btn-chat-gallery-${id}"></button>
+        <button class="icon-btn" title="Mood" onclick="showMoodModal()" id="btn-chat-mood-${id}"></button>
+        ${conv.type==='group'?`<button class="icon-btn" onclick="showMembersPanel('${id}')">${icon("members",18)}</button>`:''}
       </div>
     </div>
     <div id="chat-search-bar-${id}" style="display:none" class="chat-search-bar">
       <input type="text" placeholder="Search messages..." id="chat-search-input-${id}" oninput="runChatSearch('${id}',this.value)"/>
       <span class="csi-count" id="chat-search-count-${id}"></span>
-      <button class="icon-btn" style="width:28px;height:28px;font-size:13px" onclick="prevChatResult('${id}')">▲</button>
-      <button class="icon-btn" style="width:28px;height:28px;font-size:13px" onclick="nextChatResult('${id}')">▼</button>
-      <button class="icon-btn" style="width:28px;height:28px;font-size:12px" onclick="closeChatSearch('${id}')">✕</button>
+      <button class="icon-btn" style="width:28px;height:28px" onclick="prevChatResult('${id}')">${icon("up",14)}</button>
+      <button class="icon-btn" style="width:28px;height:28px" onclick="nextChatResult('${id}')">${icon("down",14)}</button>
+      <button class="icon-btn" style="width:28px;height:28px" onclick="closeChatSearch('${id}')">${icon("close",14)}</button>
     </div>
     <div id="pinned-bar-${id}" style="display:none" class="pinned-bar" onclick="scrollToPinned('${id}')">
       <span class="pinned-icon">📌</span>
@@ -3190,11 +3284,11 @@ async function openConversation(id) {
     <div class="input-area">
       <div id="reply-strip-${id}" style="display:none" class="reply-strip">
         <div class="reply-strip-text" id="reply-strip-text-${id}"></div>
-        <button class="icon-btn" style="width:24px;height:24px;font-size:12px" onclick="cancelReply('${id}')">✕</button>
+        <button class="icon-btn" style="width:24px;height:24px" onclick="cancelReply('${id}')">${icon("close",12)}</button>
       </div>
       <div id="edit-strip-${id}" style="display:none" class="edit-strip">
         <div class="edit-strip-text"><strong>✏️ Editing message</strong> <span id="edit-strip-preview-${id}" style="opacity:.6"></span></div>
-        <button class="icon-btn" style="width:24px;height:24px;font-size:12px" onclick="cancelEdit('${id}')">✕</button>
+        <button class="icon-btn" style="width:24px;height:24px" onclick="cancelEdit('${id}')">${icon("close",12)}</button>
       </div>
       <div class="feat-btns">
         <button class="feat-btn" id="anon-btn-${id}" onclick="toggleAnon('${id}')">👁 Anon</button>
@@ -3221,16 +3315,30 @@ async function openConversation(id) {
       </div>
       <div class="input-row">
         <div class="input-wrap">
-          <button class="icon-btn" style="width:28px;height:28px;font-size:18px;flex-shrink:0;margin-bottom:2px" onclick="toggleEmojiPicker('${id}')" title="Emoji">😊</button>
+          <button class="icon-btn" style="width:28px;height:28px;flex-shrink:0;margin-bottom:2px" onclick="toggleEmojiPicker('${id}')" title="Emoji">${icon("emoji",20)}</button>
           <textarea class="msg-input" id="msg-input-${id}" placeholder="Message ${name}…" rows="1"
             onkeydown="handleKey(event,'${id}')" oninput="handleInput(event,'${id}')"></textarea>
         </div>
-        <button class="send-btn" onclick="sendMsg('${id}')" id="send-btn-${id}">➤</button>
+        <button class="send-btn" onclick="sendMsg('${id}')" id="send-btn-${id}">${icon('compose',18)}</button>
       </div>
     </div>`
 
   renderMessages(id)
   renderPinnedBar(id)
+
+  // Render SVG icons into the newly created chat header buttons
+  requestAnimationFrame(() => {
+    const _bb = document.getElementById('btn-back-mobile')
+    const _bs = document.getElementById('btn-chat-search-'+id)
+    const _bg = document.getElementById('btn-chat-gallery-'+id)
+    const _bm = document.getElementById('btn-chat-mood-'+id)
+    const _bM = document.getElementById('btn-chat-members-'+id)
+    if (_bb && !_bb.innerHTML.trim()) _bb.innerHTML = icon('back', 20)
+    if (_bs && !_bs.innerHTML.trim()) _bs.innerHTML = icon('search', 18)
+    if (_bg && !_bg.innerHTML.trim()) _bg.innerHTML = icon('gallery', 18)
+    if (_bm && !_bm.innerHTML.trim()) _bm.innerHTML = icon('palette', 18)
+    if (_bM && !_bM.innerHTML.trim()) _bM.innerHTML = icon('members', 18)
+  })
 
   // Restore draft if any
   if (drafts[id]) {
@@ -4216,7 +4324,7 @@ function showSettingsModal(){
             <div style="font-size:13px;font-weight:600">Enable push notifications</div>
             <div style="font-size:11.5px;color:var(--text-muted)">Get notified on your phone even when the app is closed</div>
           </div>
-          <button class="btn btn-primary" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="initPushNotifications().then(()=>{ closeAllModals(); showSettingsModal() })">Enable</button>
+          <button class="btn btn-primary" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="Notification.requestPermission().then(p=>p==='granted'?toast('🔔 Notifications enabled!','success'):toast('Notifications blocked — allow in browser settings','error'))">Enable</button>
         </div>`
       })()}
       ${[['notif_sounds','🔊 Sounds','Plays a chime on new messages'],['notif_vibrate','📳 Vibration','Vibrate on new messages (mobile)'],['notif_preview','👁 Message Preview','Show message content in notifications'],['notif_groups','👥 Group Notifications','Notify for all group messages']].map(([key,label,desc])=>`
@@ -4557,6 +4665,8 @@ function mobileTab(tab){
   mobilePage=tab
   document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'))
   document.getElementById('nav-'+tab)?.classList.add('active')
+  updateNavIcons(tab)
+  requestAnimationFrame(()=>positionNavPill(tab))
   const sidebar=document.getElementById('sidebar')
   const mainArea=document.getElementById('main-area-el')
   const fab=document.getElementById('fab')
@@ -5599,6 +5709,88 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener('scroll',onVVResize)
 }
 </script>
-<script src="/js/push.js"></script>
+
+// ══════════════════════════════════════════════════════════════════
+// ICON INIT — render all SVG icons into their placeholders
+// Called once on DOMContentLoaded
+// ══════════════════════════════════════════════════════════════════
+function initIcons() {
+  // Bottom nav
+  const navDefs = [
+    ['nav-icon-chats',    'chats',    'chatsFill'],
+    ['nav-icon-groups',   'groups',   'groupsFill'],
+    ['nav-icon-status',   'status',   'statusFill'],
+    ['nav-icon-calls',    'calls',    'callsFill'],
+    ['nav-icon-settings', 'settings', 'settingsFill'],
+  ]
+  navDefs.forEach(([id, outline, fill]) => {
+    const el = document.getElementById(id)
+    if (el) el.innerHTML = icon(outline, 22)
+    el && el.setAttribute('data-outline', outline)
+    el && el.setAttribute('data-fill', fill)
+  })
+  updateNavIcons('chats')
+
+  // FAB
+  const fabEl = document.getElementById('fab-icon-el')
+  if (fabEl) fabEl.innerHTML = icon('compose', 22)
+
+  // Sidebar header
+  const logoEl = document.getElementById('logo-icon-el')
+  if (logoEl) logoEl.innerHTML = icon('leaf', 22)
+
+  const btnSearch = document.getElementById('btn-search-sidebar')
+  if (btnSearch) btnSearch.innerHTML = icon('search', 18)
+
+  const btnNotifBell = document.getElementById('notif-bell-icon')
+  if (btnNotifBell) btnNotifBell.innerHTML = icon('bell', 18)
+
+  const btnMore = document.getElementById('btn-more-sidebar')
+  if (btnMore) btnMore.innerHTML = icon('more', 18)
+
+  const btnSettingsFooter = document.getElementById('btn-settings-footer')
+  if (btnSettingsFooter) btnSettingsFooter.innerHTML = icon('settings', 18)
+
+  const searchIconPos = document.getElementById('search-icon-pos-el')
+  if (searchIconPos) searchIconPos.innerHTML = icon('search', 14)
+
+  // Mobile back button (may not exist yet, so also called in openConversation)
+  renderChatHeaderIcons()
+
+  // Nav pill initial position
+  positionNavPill('chats')
+}
+
+function renderChatHeaderIcons() {
+  const btnBack = document.getElementById('btn-back-mobile')
+  if (btnBack && !btnBack.innerHTML.trim()) btnBack.innerHTML = icon('back', 20)
+}
+
+function updateNavIcons(activeTab) {
+  const tabMap = { chats:'chats', groups:'groups', status:'status', calls:'calls', settings:'settings' }
+  Object.entries(tabMap).forEach(([tab, name]) => {
+    const el = document.getElementById('nav-icon-' + tab)
+    if (!el) return
+    const isActive = tab === activeTab
+    el.innerHTML = icon(isActive ? name + 'Fill' : name, 22)
+    el.style.color = isActive ? 'var(--accent)' : ''
+  })
+}
+
+function positionNavPill(activeTab) {
+  const pill = document.getElementById('nav-pill')
+  const activeBtn = document.getElementById('nav-' + activeTab)
+  if (!pill || !activeBtn) return
+  const nav = document.getElementById('bottom-nav')
+  const navRect = nav.getBoundingClientRect()
+  const btnRect = activeBtn.getBoundingClientRect()
+  const pillW = Math.min(btnRect.width * 0.55, 52)
+  const pillX = btnRect.left - navRect.left + (btnRect.width - pillW) / 2
+  pill.style.width = pillW + 'px'
+  pill.style.transform = `translateX(${pillX}px)`
+}
+
+document.addEventListener('DOMContentLoaded', initIcons)
+
 </body>
 </html>
