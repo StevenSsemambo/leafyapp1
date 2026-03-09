@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -77,11 +75,7 @@ body{height:100%;height:-webkit-fill-available;width:100%;overflow:hidden;font-f
 
 /* ENHANCED TRANSITIONS */
 .sidebar{transition:transform .28s cubic-bezier(0.4,0,0.2,1),opacity .22s ease}
-.conv-item{transition:background .2s var(--t),transform .18s var(--t-spring),box-shadow .2s ease}
-.conv-item:hover{background:var(--bg-hover);transform:translateX(2px)}
-.conv-item:active{transform:scale(0.98)}
-.conv-item.active{background:var(--bg-active);border-color:var(--border-default)}
-.conv-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--accent);border-radius:99px;animation:activeBar 0.3s var(--t-spring) both}
+/* conv-item transitions handled in main CSS block below */
 @keyframes activeBar{from{height:0;opacity:0}to{opacity:1}}
 .message-bubble{transition:border-color .2s ease,box-shadow .2s ease,transform .15s var(--t-spring)}
 .message-bubble:hover{transform:scale(1.01);box-shadow:0 2px 12px rgba(0,0,0,.25)}
@@ -195,9 +189,17 @@ body{font-size:calc(14px * var(--font-size-scale))}
 .tick.read{color:var(--accent)}
 
 /* PINNED CONVERSATION */
-.conv-item.pinned-conv::after{content:'📌';position:absolute;top:6px;right:8px;font-size:10px;opacity:.5}
+.conv-section-label{
+  display:flex;align-items:center;gap:6px;
+  padding:10px 12px 5px;
+  font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--text-muted);
+}
+.conv-tick{font-size:10px;color:var(--text-muted);margin-top:1px;display:block;text-align:right;line-height:1}
+.conv-tick.delivered{color:var(--text-muted)}
+.conv-tick.read{color:var(--accent)}
 .conv-item{position:relative}
-.pinned-conv-divider{padding:6px 14px 4px;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.pinned-conv-divider{padding:10px 14px 6px;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:8px}.pinned-conv-divider::after{content:'';flex:1;height:1px;background:var(--border-subtle)}
 .pinned-conv-divider::after{content:'';flex:1;height:1px;background:var(--border-subtle)}
 
 /* CONTACT CARD MESSAGE */
@@ -635,40 +637,237 @@ body{font-size:calc(14px * var(--font-size-scale))}
 #app{display:flex;height:100vh;height:100dvh;width:100vw;overflow:hidden;background:var(--bg-void)}
 
 /* SIDEBAR */
-.sidebar-header{height:var(--header-h);display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid var(--border-subtle);flex-shrink:0;background:var(--glass-bg);backdrop-filter:var(--glass-blur)}
-.logo{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:21px;font-weight:800;color:var(--accent);letter-spacing:-.5px}
-.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent-dim));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:var(--shadow-glow);flex-shrink:0}
-.sidebar-search{padding:10px 12px;flex-shrink:0}
+/* ═══════════════════════════════════════════════════════════════
+   SIDEBAR HEADER, SEARCH & TABS — upgraded
+   ═══════════════════════════════════════════════════════════════ */
+.sidebar-header{
+  height:var(--header-h);display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;flex-shrink:0;position:sticky;top:0;z-index:5;
+  background:var(--glass-bg);backdrop-filter:var(--glass-blur);
+  border-bottom:1px solid var(--border-subtle);
+}
+.logo{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-size:21px;font-weight:800;color:var(--text-primary);letter-spacing:-.6px}
+.logo span{background:linear-gradient(120deg,var(--accent-bright),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-icon{
+  width:34px;height:34px;
+  background:linear-gradient(135deg,var(--accent-bright),var(--accent-dim));
+  border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;
+  box-shadow:0 3px 14px var(--accent-glow);flex-shrink:0;
+  transition:transform .22s var(--t-spring),box-shadow .22s ease;
+}
+.logo-icon:hover{transform:scale(1.1) rotate(-6deg);box-shadow:0 4px 20px var(--accent-glow-strong)}
+
+/* ── Search bar ──────────────────────────────────────────────── */
+.sidebar-search{padding:10px 12px 8px;flex-shrink:0}
 .search-wrap{position:relative}
-.search-icon-pos{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;font-size:14px}
-.search-input{width:100%;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:99px;padding:8px 12px 8px 34px;color:var(--text-primary);font-family:var(--font-body);font-size:13px;outline:none;transition:border-color .18s,box-shadow .18s}
+.search-icon-pos{
+  position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  color:var(--text-muted);pointer-events:none;font-size:14px;
+  transition:color .2s ease;
+}
+.search-input{
+  width:100%;
+  background:var(--bg-input);
+  border:1.5px solid var(--border-subtle);
+  border-radius:14px;
+  padding:9px 14px 9px 38px;
+  color:var(--text-primary);font-family:var(--font-body);font-size:13px;
+  outline:none;
+  transition:border-color .22s ease,box-shadow .22s ease,background .22s ease;
+}
 .search-input::placeholder{color:var(--text-placeholder)}
-.search-input:focus{border-color:var(--border-accent);box-shadow:0 0 0 3px var(--accent-glow)}
-.sidebar-tabs{display:flex;padding:0 12px 10px;gap:4px;flex-shrink:0}
-.tab-btn{flex:1;padding:6px 8px;border-radius:99px;border:none;background:transparent;color:var(--text-muted);font-family:var(--font-body);font-size:12px;font-weight:500;cursor:pointer;transition:all .18s;white-space:nowrap}
-.tab-btn.active{background:var(--accent-glow);color:var(--accent);border:1px solid var(--border-accent)}
+.search-input:focus{
+  border-color:var(--border-accent);
+  box-shadow:0 0 0 3px var(--accent-glow),0 3px 14px rgba(0,0,0,.2);
+  background:var(--bg-card);
+}
+.search-input:focus ~ .search-icon-pos,
+.search-wrap:focus-within .search-icon-pos{color:var(--accent)}
+
+/* ── Tab bar ─────────────────────────────────────────────────── */
+.sidebar-tabs{
+  display:flex;padding:4px 12px 10px;gap:3px;flex-shrink:0;
+}
+.tab-btn{
+  flex:1;padding:7px 10px;
+  border-radius:10px;border:1px solid transparent;
+  background:transparent;color:var(--text-muted);
+  font-family:var(--font-body);font-size:12px;font-weight:500;
+  cursor:pointer;transition:all .2s var(--t-smooth);
+  white-space:nowrap;position:relative;overflow:hidden;
+}
+.tab-btn::after{
+  content:'';position:absolute;bottom:0;left:25%;right:25%;height:2px;
+  background:var(--accent);border-radius:99px;
+  transform:scaleX(0);transition:transform .22s var(--t-spring);
+}
+.tab-btn.active{
+  background:rgba(34,197,94,.1);color:var(--accent);
+  border-color:var(--border-accent);font-weight:700;
+  box-shadow:0 2px 10px rgba(34,197,94,.12);
+}
+.tab-btn.active::after{transform:scaleX(1)}
 .tab-btn:hover:not(.active){background:var(--bg-hover);color:var(--text-secondary)}
-.conversations-list{flex:1;overflow-y:auto;padding:4px 6px}
-.conv-item{display:flex;align-items:center;gap:10px;padding:var(--conv-pad);border-radius:var(--radius-lg);cursor:pointer;position:relative;border:1px solid transparent}
-.av-wrap{position:relative;flex-shrink:0;cursor:pointer}
-.av{width:var(--avatar-size);height:var(--avatar-size);border-radius:50%;background:var(--bg-card);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:var(--accent);border:2px solid var(--border-default);font-family:var(--font-display);flex-shrink:0}
-.av img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+/* ═══════════════════════════════════════════════════════════════
+   CONVERSATION LIST — upgraded visuals
+   ═══════════════════════════════════════════════════════════════ */
+.conversations-list{flex:1;overflow-y:auto;padding:6px 8px 80px;scroll-behavior:smooth}
+.conversations-list::-webkit-scrollbar{width:2px}
+.conversations-list::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:99px}
+
+/* ── Conv item shell ──────────────────────────────────────────── */
+.conv-item{
+  display:flex;align-items:center;gap:12px;
+  padding:9px 10px;
+  border-radius:var(--radius-lg);
+  cursor:pointer;position:relative;
+  border:1px solid transparent;
+  transition:background .18s ease,transform .16s var(--t-spring),box-shadow .18s ease;
+  overflow:hidden;
+}
+.conv-item::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,var(--accent-glow) 0%,transparent 100%);
+  opacity:0;transition:opacity .2s ease;pointer-events:none;border-radius:inherit;
+}
+.conv-item:hover{background:var(--bg-hover);transform:translateX(2px)}
+.conv-item:hover::before{opacity:1}
+.conv-item:active{transform:scale(0.985)}
+.conv-item.active{
+  background:linear-gradient(110deg,rgba(34,197,94,.09) 0%,rgba(34,197,94,.03) 100%);
+  border-color:var(--border-default);
+  box-shadow:inset 0 0 0 1px rgba(34,197,94,.1), 0 2px 16px rgba(0,0,0,.18);
+}
+.conv-item.active::before{opacity:0}
+
+/* active left bar */
+.conv-item.active::after{
+  content:'';position:absolute;left:0;top:16%;bottom:16%;
+  width:3px;background:linear-gradient(to bottom,var(--accent-bright),var(--accent));
+  border-radius:0 3px 3px 0;
+  box-shadow:0 0 10px var(--accent-glow);
+  animation:activeBar .28s var(--t-spring) both;
+}
+@keyframes activeBar{from{opacity:0;transform:scaleY(0)}to{opacity:1;transform:scaleY(1)}}
+
+/* ── Avatar ───────────────────────────────────────────────────── */
+.av-wrap{position:relative;flex-shrink:0}
+.av{
+  width:var(--avatar-size);height:var(--avatar-size);border-radius:50%;
+  background:var(--bg-card);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:15px;color:var(--accent);
+  border:2px solid var(--border-default);
+  font-family:var(--font-display);flex-shrink:0;
+  box-shadow:0 2px 10px rgba(0,0,0,.4);
+  transition:border-color .22s ease,box-shadow .22s ease,transform .2s var(--t-spring);
+  overflow:hidden;
+}
+.av img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.conv-item:hover .av{transform:scale(1.05)}
+.conv-item.active .av{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow),0 2px 10px rgba(0,0,0,.4)}
+.conv-item:has(.unread-badge:not(.unread-badge-muted)) .av{border-color:var(--accent)}
 .av-sm{width:30px!important;height:30px!important;font-size:12px!important}
-.status-dot{position:absolute;bottom:0;right:0;width:11px;height:11px;border:2.5px solid var(--bg-deep);border-radius:50%}
-.status-dot.online{background:#22c55e}.status-dot.away{background:#eab308}.status-dot.offline{background:var(--text-muted)}
+
+/* ── Status dot ──────────────────────────────────────────────── */
+.status-dot{
+  position:absolute;bottom:1px;right:1px;
+  width:11px;height:11px;
+  border:2px solid var(--bg-deep);border-radius:50%;
+  transition:background .3s ease;
+}
+.status-dot.online{
+  background:#22c55e;
+  box-shadow:0 0 0 2px rgba(34,197,94,0.25),0 0 8px rgba(34,197,94,0.6);
+  animation:onlinePulse 2.8s ease-in-out infinite;
+}
+.status-dot.away{background:#eab308;box-shadow:0 0 5px rgba(234,179,8,0.5)}
+.status-dot.offline{background:var(--bg-raised);border-color:var(--border-strong)}
+@keyframes onlinePulse{
+  0%,100%{box-shadow:0 0 0 2px rgba(34,197,94,0.2),0 0 6px rgba(34,197,94,0.4)}
+  50%{box-shadow:0 0 0 4px rgba(34,197,94,0.08),0 0 12px rgba(34,197,94,0.65)}
+}
+
+/* ── Conv info (centre column) ──────────────────────────────── */
 .conv-info{flex:1;min-width:0}
-.conv-name{font-size:13.5px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.conv-preview{font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
-.conv-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
-.conv-time{font-size:10.5px;color:var(--text-muted)}
-.unread-badge{background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px;min-width:18px;text-align:center;line-height:1.4}
-.sidebar-footer{padding:10px 12px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:8px;flex-shrink:0;background:var(--glass-bg)}
-.own-area{display:flex;align-items:center;gap:9px;flex:1;cursor:pointer;padding:6px 8px;border-radius:var(--radius-md)}
-.own-name{font-size:13px;font-weight:600;color:var(--text-primary)}
-.own-status{font-size:11.5px;color:var(--text-muted)}
-.icon-btn{width:34px;height:34px;border-radius:var(--radius-md);border:none;background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;font-size:15px}
-.icon-btn:hover{background:var(--bg-hover);color:var(--text-secondary)}
-.icon-btn.active{background:var(--accent-glow);color:var(--accent)}
+.conv-name-row{display:flex;align-items:center;gap:5px;overflow:hidden;margin-bottom:3px}
+.conv-name{
+  font-size:14px;font-weight:600;color:var(--text-primary);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.15px;
+  line-height:1.25;
+}
+.conv-item:has(.unread-badge:not(.unread-badge-muted)) .conv-name{font-weight:750;color:#fff}
+.conv-name-row .conv-name{flex:1;min-width:0}
+
+.conv-preview{
+  font-size:12.5px;color:var(--text-muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  line-height:1.35;display:flex;align-items:center;gap:4px;
+}
+.conv-item:has(.unread-badge:not(.unread-badge-muted)) .conv-preview{
+  color:var(--text-secondary);font-weight:500;
+}
+.conv-sender-prefix{color:var(--accent);font-weight:600;font-size:12px;flex-shrink:0}
+
+/* group member count pill */
+.conv-group-badge{
+  flex-shrink:0;font-size:10px;font-weight:700;
+  color:var(--text-muted);background:var(--bg-raised);
+  border:1px solid var(--border-subtle);border-radius:99px;
+  padding:0 6px;line-height:1.7;letter-spacing:.1px;
+}
+.has-unread .conv-group-badge{border-color:var(--border-accent);color:var(--accent)}
+
+/* ── Meta column (right) ─────────────────────────────────────── */
+.conv-meta{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;min-width:46px}
+.conv-time-row{display:flex;align-items:center;gap:3px;justify-content:flex-end}
+.conv-time{font-size:11px;color:var(--text-muted);font-weight:400;letter-spacing:.1px;white-space:nowrap}
+.conv-item:has(.unread-badge:not(.unread-badge-muted)) .conv-time{color:var(--accent);font-weight:700}
+
+/* ── Unread badge  ────────────────────────────────────────────── */
+.unread-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:20px;height:20px;padding:0 6px;
+  background:var(--accent);color:#fff;
+  font-size:11px;font-weight:800;border-radius:99px;
+  box-shadow:0 2px 10px rgba(34,197,94,.45),0 0 0 2px rgba(34,197,94,.15);
+  animation:badgePop .32s var(--t-spring) both;
+  line-height:1;letter-spacing:-.3px;
+}
+@keyframes badgePop{from{transform:scale(0) rotate(-8deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.unread-badge-muted{
+  background:var(--bg-raised) !important;color:var(--text-muted) !important;
+  border:1px solid var(--border-default);box-shadow:none !important;
+}
+
+/* mute icon */
+.mute-icon{color:var(--text-muted);opacity:.55;flex-shrink:0}
+
+/* ── Typing indicator in list ────────────────────────────────── */
+.conv-typing-indicator{
+  display:inline-flex;align-items:center;gap:5px;
+  color:var(--accent);font-weight:500;font-style:italic;font-size:12px;
+}
+.typing-dots{display:inline-flex;gap:3px;align-items:center}
+.typing-dots span{
+  width:4px;height:4px;border-radius:50%;background:var(--accent);
+  animation:typingBounce 1.2s ease-in-out infinite;opacity:.8;
+}
+.typing-dots span:nth-child(2){animation-delay:.18s}
+.typing-dots span:nth-child(3){animation-delay:.36s}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* ── Draft badge ─────────────────────────────────────────────── */
+.conv-draft-badge{color:#f97316;font-weight:700;font-size:11.5px}
+.conv-draft-preview{color:var(--text-muted)}
+.sidebar-footer{padding:10px 12px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:8px;flex-shrink:0;background:var(--glass-bg);backdrop-filter:var(--glass-blur)}
+.own-area{display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;padding:6px 8px;border-radius:var(--radius-md);transition:background .18s ease}.own-area:hover{background:var(--bg-hover)}
+.own-name{font-size:13.5px;font-weight:700;color:var(--text-primary);letter-spacing:-.1px}
+.own-status{font-size:11.5px;color:var(--text-muted);display:flex;align-items:center;gap:4px}.own-status::before{content:'';width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.6);flex-shrink:0}
+.icon-btn{width:36px;height:36px;border-radius:var(--radius-md);border:none;background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .18s ease,color .18s ease,transform .2s var(--t-spring);font-size:15px}
+.icon-btn:hover{background:var(--bg-hover);color:var(--text-secondary);transform:scale(1.08)}
+.icon-btn:active{transform:scale(0.93)}
+.icon-btn.active{background:var(--accent-glow);color:var(--accent);box-shadow:0 0 0 1px var(--border-accent)}
 
 /* MAIN AREA */
 .main-area{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;height:100%;overflow:hidden}
@@ -1428,6 +1627,8 @@ let state = {
   isMobile:       window.innerWidth <= 768,
   sidebarOpen:    false,
   typingTimer:    null,
+  typingConvId:   null,
+  typingConvIdUser: null,
   brightness:     1,
   fontSize:       1,
   density:        'comfortable',
@@ -1448,6 +1649,8 @@ let convSubscription = null
 let typingChannel    = null
 let typingTimeout    = null
 let typingBroadcastTimeout = null
+let _typingConvId    = null   // conv showing typing in sidebar
+let _typingConvUser  = null
 
 // ══════════════════════════════════════════════════════════════════
 // INIT — session restore & boot
@@ -1503,10 +1706,10 @@ async function bootApp() {
   await loadMyProfile(currentUser.id)
   await loadSettings()
   setOnlineStatus(true).catch(()=>{})
-  // Request browser notification permission
-  if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission().catch(() => {})
-  }
+  // Register SW and re-subscribe silently if permission already granted
+  await bootPush()
+  // Request push permission (shows browser prompt if not yet decided)
+  await initPushNotifications()
   await loadContacts()
   await loadConversations()
   await loadNotifications()
@@ -2361,15 +2564,25 @@ function subscribeToConversations(convIds) {
         row.querySelector('span').textContent = `${sender.name} is typing…`
         row.style.opacity = '1'
         row.style.pointerEvents = 'auto'
+        // Also track in state for sidebar conv list indicator
+        _typingConvId = payload.convId
+        _typingConvUser = payload.userId
+        renderConversations()
         // Auto-hide after 3 seconds of no updates
         clearTimeout(typingTimeout)
         typingTimeout = setTimeout(() => {
           row.style.opacity = '0'
           row.style.pointerEvents = 'none'
+          _typingConvId = null
+          _typingConvUser = null
+          renderConversations()
         }, 3000)
       } else {
         row.style.opacity = '0'
         row.style.pointerEvents = 'none'
+        _typingConvId = null
+        _typingConvUser = null
+        renderConversations()
       }
     })
     .subscribe()
@@ -2695,6 +2908,15 @@ function launchApp() {
       document.getElementById('app').style.display='flex'
       updateSidebarProfile()
       renderConversations()
+      // Handle notification tap: ?open_conv=<id> or pendingOpenConv from SW message
+      if (window._pendingOpenConv) {
+        const convId = window._pendingOpenConv
+        delete window._pendingOpenConv
+        setTimeout(() => {
+          const conv = CONVERSATIONS.find(c => c.id === convId)
+          if (conv) openConversation(convId)
+        }, 400)
+      }
       loadStatuses()
       updateNotifBadge()
       applyDensity(state.density)
@@ -2742,9 +2964,16 @@ function renderConversations(filter='') {
   })
 
   if (convs.length === 0) {
-    list.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:32px 16px;font-size:13px">
-      ${filter ? 'No conversations match your search' : 'No conversations yet.<br/>Start a new chat! ✉️'}
-    </div>`
+    list.innerHTML = filter
+      ? `<div style="text-align:center;padding:40px 20px">
+          <div style="font-size:36px;margin-bottom:12px;opacity:.4">🔍</div>
+          <div style="color:var(--text-muted);font-size:13.5px;font-weight:500">No results for "<strong style='color:var(--text-secondary)'>${escapeHtml(filter)}</strong>"</div>
+        </div>`
+      : `<div style="text-align:center;padding:48px 20px 32px">
+          <div style="width:64px;height:64px;margin:0 auto 16px;background:var(--accent-glow);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;border:1.5px solid var(--border-accent)">💬</div>
+          <div style="color:var(--text-secondary);font-size:14px;font-weight:600;margin-bottom:6px">No chats yet</div>
+          <div style="color:var(--text-muted);font-size:12.5px">Tap the pencil icon to start a conversation</div>
+        </div>`
     return
   }
 
@@ -2756,38 +2985,110 @@ function renderConversations(filter='') {
     const active   = c.id === state.activeConvId
     const user     = c.type==='dm' ? USERS[c.otherId] : null
     const initials = user ? user.initials : (c.name[1]||c.name[0]||'G')
-    const avatarBg = c.type==='group' ? 'background:linear-gradient(135deg,var(--accent-dim),var(--accent));color:#fff' : ''
     const isMuted  = convMeta[c.id]?.muted
     const isPinned = convMeta[c.id]?.pinnedConv
     const hasDraft = drafts[c.id] && c.id !== state.activeConvId
+    // Show typing if the typing indicator is active for this conversation
+    // (the app tracks typing per active conv via typingChannel broadcast)
+    const isTyping = _typingConvId === c.id && c.id !== state.activeConvId
+
+    // Avatar
+    const avatarBg = c.type==='group'
+      ? 'background:linear-gradient(135deg,var(--accent-dim),var(--accent-bright));color:#fff'
+      : ''
     const avatarContent = user?.avatar_url
       ? `<img src="${user.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
       : initials
-    return `<div class="conv-item ${active?'active':''} ${isPinned?'pinned-conv':''}" onclick="openConversation('${c.id}')" oncontextmenu="showConvMenu(event,'${c.id}')">
+
+    // Preview line: typing > draft > last message
+    let previewHtml = ''
+    if (isTyping) {
+      const typerName = _typingConvUser && c.type==='group' && USERS[_typingConvUser] ? USERS[_typingConvUser].display_name?.split(' ')[0] || '' : ''
+      previewHtml = `<span class="conv-typing-indicator"><span class="typing-dots"><span></span><span></span><span></span></span>${c.type==='group'&&typerName ? `<span style="color:var(--accent);font-weight:600">${typerName}</span> ` : ''}typing…</span>`
+    } else if (hasDraft) {
+      previewHtml = `<span class="conv-draft-badge">Draft:</span> <span class="conv-draft-preview">${escapeHtml(drafts[c.id].slice(0,40))}${drafts[c.id].length>40?'…':''}</span>`
+    } else {
+      // Add sender prefix for groups
+      let prefix = ''
+      if (c.type==='group' && c.lastSenderId) {
+        if (c.lastSenderId === myProfile?.id) {
+          prefix = '<span class="conv-sender-prefix">You: </span>'
+        } else if (USERS[c.lastSenderId]) {
+          const fn = USERS[c.lastSenderId].display_name?.split(' ')[0] || USERS[c.lastSenderId].username || ''
+          if (fn) prefix = `<span class="conv-sender-prefix">${fn}: </span>`
+        }
+      }
+      previewHtml = prefix + (c.preview || '')
+    }
+
+    // Unread badge or muted badge
+    let badgeHtml = ''
+    if (c.unread > 0) {
+      badgeHtml = isMuted
+        ? `<div class="unread-badge unread-badge-muted">${c.unread > 99 ? '99+' : c.unread}</div>`
+        : `<div class="unread-badge">${c.unread > 99 ? '99+' : c.unread}</div>`
+    }
+
+    // Pinned pin icon (right-aligned, subtle)
+    const pinnedIcon = isPinned && c.unread === 0 ? `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:var(--text-muted);opacity:.5"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 00-1.11-1.79l-1.78-.9A2 2 0 0115 10.76V6h1a2 2 0 000-4H8a2 2 0 000 4h1v4.76a2 2 0 01-1.11 1.79l-1.78.9A2 2 0 005 15.24V17z"/></svg>` : ''
+
+    // Mute icon
+    const muteIcon = isMuted ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text-muted);opacity:.6;flex-shrink:0"><path d="M16.5 12A4.5 4.5 0 0014 7.97V9.9l2.45 2.45c.03-.11.05-.24.05-.35zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0021 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0017.73 18l2 2L21 18.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>` : ''
+
+    // Last message status tick (for own messages)
+    const ownLastMsg = c.lastSenderId === myProfile?.id
+    const tickHtml = ownLastMsg && !isTyping && !hasDraft
+      ? `<span class="conv-tick tick ${c.lastMsgRead?'read':c.lastMsgDelivered?'delivered':'sent'}">✓${c.lastMsgDelivered||c.lastMsgRead?'✓':''}</span>`
+      : ''
+
+    return `<div class="conv-item ${active?'active':''} ${isPinned?'pinned-conv':''} ${c.unread>0&&!isMuted?'has-unread':''}" onclick="openConversation('${c.id}')" oncontextmenu="showConvMenu(event,'${c.id}')">
       <div class="av-wrap">
-        <div class="av" style="${avatarBg};overflow:hidden">${avatarContent}</div>
+        <div class="av" style="${avatarBg}">${avatarContent}</div>
         ${user ? `<div class="status-dot ${user.status||'offline'}"></div>` : ''}
       </div>
       <div class="conv-info">
-        <div class="conv-name">${c.name}${c.type==='group'?` <span style="font-size:10px;color:var(--text-muted);font-weight:400">${c.members.length} members</span>`:''} ${isMuted?'<span class="mute-icon">🔕</span>':''}</div>
-        <div class="conv-preview">${hasDraft ? `<span class="conv-draft-badge">📝 Draft:</span> <span class="conv-draft-preview">${escapeHtml(drafts[c.id].slice(0,40))}${drafts[c.id].length>40?'…':''}</span>` : (c.preview||'')}</div>
+        <div class="conv-name-row">
+          <span class="conv-name">${c.name}</span>
+          ${c.type==='group' ? `<span class="conv-group-badge">👥 ${c.members.length}</span>` : ''}
+          ${isMuted ? `<svg class="mute-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12A4.5 4.5 0 0014 7.97V9.9l2.45 2.45c.03-.11.05-.24.05-.35zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0021 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06A8.99 8.99 0 0017.73 18l2 2L21 18.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>` : ''}
+        </div>
+        <div class="conv-preview">${previewHtml}</div>
       </div>
       <div class="conv-meta">
-        <div class="conv-time">${c.time||''}</div>
-        ${c.unread>0&&!isMuted?`<div class="unread-badge">${c.unread}</div>`:''}
-        ${c.unread>0&&isMuted?`<div class="unread-badge" style="background:var(--text-muted)">${c.unread}</div>`:''}
+        <div class="conv-time-row">
+          <span class="conv-time">${c.time||''}</span>
+          ${isPinned && c.unread===0 ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style="color:var(--text-muted);opacity:.4"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>` : ''}
+        </div>
+        ${c.unread > 0
+          ? `<div class="unread-badge ${isMuted?'unread-badge-muted':''}">${c.unread > 99 ? '99+' : c.unread}</div>`
+          : tickHtml
+        }
       </div>
     </div>`
   }
 
   let html = ''
   if (pinned.length > 0) {
-    html += `<div class="pinned-conv-divider">📌 Pinned</div>`
+    html += `<div class="conv-section-label"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg> Pinned</div>`
     html += pinned.map(renderItem).join('')
-    if (unpinned.length > 0) html += `<div class="pinned-conv-divider">Recent</div>`
+    if (unpinned.length > 0) html += `<div class="conv-section-label" style="margin-top:6px">Recent</div>`
   }
   html += unpinned.map(renderItem).join('')
   list.innerHTML = html
+
+  // Stagger-animate items on render
+  requestAnimationFrame(() => {
+    list.querySelectorAll('.conv-item').forEach((el, i) => {
+      el.style.animation = 'none'
+      el.style.opacity = '0'
+      el.style.transform = 'translateX(-8px)'
+      requestAnimationFrame(() => {
+        el.style.transition = `opacity .22s ease ${i * 28}ms, transform .28s var(--t-spring) ${i * 28}ms`
+        el.style.opacity = '1'
+        el.style.transform = ''
+      })
+    })
+  })
 }
 
 function filterConvs(q) { renderConversations(q) }
@@ -3903,16 +4204,21 @@ function showSettingsModal(){
       </div>
     </div>
     <div class="settings-section"><h4>Notifications</h4>
-      ${'Notification' in window && Notification.permission !== 'granted' ? `
-      <div style="padding:10px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.3);border-radius:var(--radius-md);margin-bottom:12px;display:flex;align-items:center;gap:10px">
-        <span style="font-size:20px">🔔</span>
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:600">Enable push notifications</div>
-          <div style="font-size:11.5px;color:var(--text-muted)">Get notified even when the app is in the background</div>
-        </div>
-        <button class="btn btn-primary" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="Notification.requestPermission().then(p=>p==='granted'?toast('🔔 Notifications enabled!','success'):toast('Notifications blocked — allow them in your browser settings','error'))">Enable</button>
-      </div>` : `
-      <div style="padding:8px 10px;background:var(--accent-glow);border:1px solid var(--border-accent);border-radius:var(--radius-md);margin-bottom:12px;font-size:12.5px;color:var(--accent);font-weight:600">✅ Push notifications are enabled</div>`}
+      ${(()=>{
+        const perm = ('Notification' in window) ? Notification.permission : 'unsupported'
+        const hasPush = 'PushManager' in window
+        if (!hasPush) return '<div style="padding:8px 10px;background:var(--bg-raised);border-radius:var(--radius-md);margin-bottom:12px;font-size:12.5px;color:var(--text-muted)">⚠️ Push notifications are not supported in this browser.</div>'
+        if (perm === 'denied') return '<div style="padding:10px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius-md);margin-bottom:12px;font-size:12.5px;color:#ef4444;font-weight:500">🚫 Blocked. Go to browser/phone Settings → Site Settings → Notifications → Allow for this site.</div>'
+        if (perm === 'granted') return '<div style="padding:8px 10px;background:var(--accent-glow);border:1px solid var(--border-accent);border-radius:var(--radius-md);margin-bottom:12px;font-size:12.5px;color:var(--accent);font-weight:600">✅ Push notifications active — you will be notified even when the app is closed.</div>'
+        return `<div style="padding:10px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.3);border-radius:var(--radius-md);margin-bottom:12px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">🔔</span>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600">Enable push notifications</div>
+            <div style="font-size:11.5px;color:var(--text-muted)">Get notified on your phone even when the app is closed</div>
+          </div>
+          <button class="btn btn-primary" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="initPushNotifications().then(()=>{ closeAllModals(); showSettingsModal() })">Enable</button>
+        </div>`
+      })()}
       ${[['notif_sounds','🔊 Sounds','Plays a chime on new messages'],['notif_vibrate','📳 Vibration','Vibrate on new messages (mobile)'],['notif_preview','👁 Message Preview','Show message content in notifications'],['notif_groups','👥 Group Notifications','Notify for all group messages']].map(([key,label,desc])=>`
         <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-subtle)">
           <div>
@@ -5293,5 +5599,6 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener('scroll',onVVResize)
 }
 </script>
+<script src="/js/push.js"></script>
 </body>
 </html>
